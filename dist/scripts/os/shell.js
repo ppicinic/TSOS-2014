@@ -53,6 +53,8 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new TSOS.ShellCommand(this.shellDate, "date", "<date> - Displays current date and time.");
+            this.commandList[this.commandList.length] = sc;
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -263,6 +265,32 @@ var TSOS;
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
         };
+
+        Shell.prototype.shellDate = function (args) {
+            var date = new Date();
+            var hours = date.getHours();
+            var hour = "";
+            var night = "A.M.";
+            if(hours == 0){
+                hour = 12;
+            }else if(hours > 12){
+                hour = hours - 12;
+                night = "P.M.";
+            }else if(hours == 12) {
+                hour = hours;
+                night = "P.M.";
+            }else{
+                hour = hours;
+            }
+            var mins = date.getMinutes();
+            var min = "";
+            if(mins < 10){
+                min = "0" + mins;
+            }else{
+                min = mins;
+            }
+            _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
+        }
         return Shell;
     })();
     TSOS.Shell = Shell;
