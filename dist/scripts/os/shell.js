@@ -15,6 +15,25 @@ var TSOS;
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
+            this.shellMojito = function (args) {
+                _StdOut.putText("Ingredients:");
+                _StdOut.advanceLine();
+                _StdOut.putText("2 oz light rum (Banks 5 Island Rum recommended)");
+                _StdOut.advanceLine();
+                _StdOut.putText("8 - 10 mint leaves, 1 sprig for garnish");
+                _StdOut.advanceLine();
+                _StdOut.putText("1 oz simple syrup");
+                _StdOut.advanceLine();
+                _StdOut.putText(".75 oz freshly squeezed lime juice");
+                _StdOut.advanceLine();
+                _StdOut.putText("Muddle mint leaves with simple syrup in a shaker.");
+                _StdOut.advanceLine();
+                _StdOut.putText("Add lime juice and rum. Shake with ice. Fine");
+                _StdOut.advanceLine();
+                _StdOut.putText("strain into a collins glass filled with ice.");
+                _StdOut.advanceLine();
+                _StdOut.putText("Garnish with mint sprig.");
+            };
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -61,6 +80,7 @@ var TSOS;
 
             sc = new TSOS.ShellCommand(this.shellMojito, "mojito", "<string> - Prints out RumOS mojito recipe.");
             this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -277,49 +297,29 @@ var TSOS;
             var hours = date.getHours();
             var hour = "";
             var night = "A.M.";
-            if(hours == 0){
-                hour = 12;
-            }else if(hours > 12){
+            if (hours == 0) {
+                hour = "" + 12;
+            } else if (hours > 12) {
                 hour = hours - 12;
                 night = "P.M.";
-            }else if(hours == 12) {
-                hour = hours;
+            } else if (hours == 12) {
+                hour += hours;
                 night = "P.M.";
-            }else{
-                hour = hours;
+            } else {
+                hour += hours;
             }
             var mins = date.getMinutes();
             var min = "";
-            if(mins < 10){
+            if (mins < 10) {
                 min = "0" + mins;
-            }else{
-                min = mins;
+            } else {
+                min += mins;
             }
             _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
         };
 
         Shell.prototype.shellWhereami = function (args) {
             _StdOut.putText("R:\\PirateShip\\RumCellar\\");
-        };
-
-        Shell.prototype.shellMojito = function (args) {
-            _StdOut.putText("Ingredients:");
-            _StdOut.advanceLine();
-            _StdOut.putText("2 oz light rum (Banks 5 Island Rum recommended)");
-            _StdOut.advanceLine();
-            _StdOut.putText("8 - 10 mint leaves, 1 sprig for garnish");
-            _StdOut.advanceLine();
-            _StdOut.putText("1 oz simple syrup");
-            _StdOut.advanceLine();
-            _StdOut.putText(".75 oz freshly squeezed lime juice");
-            _StdOut.advanceLine();
-            _StdOut.putText("Muddle mint leaves with simple syrup in a shaker.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Add lime juice and rum. Shake with ice. Fine");
-            _StdOut.advanceLine();
-            _StdOut.putText("strain into a collins glass filled with ice.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Garnish with mint sprig.");
         };
         return Shell;
     })();
