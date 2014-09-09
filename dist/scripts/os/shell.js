@@ -55,6 +55,9 @@ var TSOS;
 
             sc = new TSOS.ShellCommand(this.shellDate, "date", "<date> - Displays current date and time.");
             this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "<string> - Displays drive location.");
+            this.commandList[this.commandList.length] = sc;
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
@@ -290,6 +293,10 @@ var TSOS;
                 min = mins;
             }
             _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
+        };
+
+        Shell.prototype.shellWhereami = function (args) {
+            _StdOut.putText("R:\\PirateShip\\RumCellar\\");
         };
         return Shell;
     })();
