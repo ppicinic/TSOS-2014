@@ -290,7 +290,7 @@ var TSOS;
                 min = mins;
             }
             _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
-        }
+        };
         return Shell;
     })();
     TSOS.Shell = Shell;
