@@ -9,7 +9,6 @@
    ------------ */
 
 // TODO: Write a base class / prototype for system services and let Shell inherit from it.
-
 module TSOS {
     export class Shell {
         // Properties
@@ -140,6 +139,14 @@ module TSOS {
                     this.execute(this.shellInvalidCommand);
                 }
             }
+        }
+
+        public getCommands() : string[]{
+            var commands:string[] = [];
+            for(var i = 0; i < this.commandList.length; i++){
+                commands[i] = this.commandList[i].command;
+            }
+            return commands;
         }
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that

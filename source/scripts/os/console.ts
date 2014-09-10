@@ -17,7 +17,8 @@ module TSOS {
                     public currentFontSize = _DefaultFontSize,
                     public currentXPosition = 0,
                     public currentYPosition = _DefaultFontSize,
-                    public buffer = "") {
+                    public buffer = "",
+                    public cmdBuffer:string[] = []) {
 
         }
 
@@ -50,7 +51,13 @@ module TSOS {
                     this.deleteText();
                     this.buffer = this.buffer.substring(0, this.buffer.length - 1);
                 } else if(chr === String.fromCharCode(9)) {
-                }else {
+                    this.tabComplete(this.buffer);
+                } else if(chr === String.fromCharCode(38)){
+
+                } else if(chr === String.fromCharCode(40)){
+                    
+                }
+                else{
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
                     this.putText(chr);
@@ -59,6 +66,34 @@ module TSOS {
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        }
+
+        public tabComplete(buffer):void {
+            var commands:string[] = [];
+            var commandList = _OsShell.getCommands();
+            for(var i = 0; i < commandList.length; i++ ){
+                var cmd = commandList[i];
+                if(Console.startsWith(buffer, cmd)){
+                    commands[commands.length] = commandList[i];
+                }
+            }
+            if(commands.length == 1){
+                var textAdd:string = commands[0].substring(this.buffer.length, commands[0].length);
+                this.putText(textAdd);
+                this.buffer += textAdd;
+            }
+        }
+
+        public static startsWith(arg1:string, arg2:string): boolean{
+            if(arg1.length > arg2.length){
+                return false;
+            }
+            for(var i = 0; i < arg1.length; i++){
+                if(arg1.charAt(i) !== arg2.charAt(i)){
+                    return false;
+                }
+            }
+            return true;
         }
 
         public deleteText() : void {

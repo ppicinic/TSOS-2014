@@ -8,17 +8,19 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var TSOS;
 (function (TSOS) {
     var Console = (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
+        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdBuffer) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
             if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
+            if (typeof cmdBuffer === "undefined") { cmdBuffer = []; }
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.cmdBuffer = cmdBuffer;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -51,6 +53,9 @@ var TSOS;
                     this.deleteText();
                     this.buffer = this.buffer.substring(0, this.buffer.length - 1);
                 } else if (chr === String.fromCharCode(9)) {
+                    this.tabComplete(this.buffer);
+                } else if (chr === String.fromCharCode(38)) {
+                } else if (chr === String.fromCharCode(40)) {
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -61,6 +66,34 @@ var TSOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        Console.prototype.tabComplete = function (buffer) {
+            var commands = [];
+            var commandList = _OsShell.getCommands();
+            for (var i = 0; i < commandList.length; i++) {
+                var cmd = commandList[i];
+                if (Console.startsWith(buffer, cmd)) {
+                    commands[commands.length] = commandList[i];
+                }
+            }
+            if (commands.length == 1) {
+                var textAdd = commands[0].substring(this.buffer.length, commands[0].length);
+                this.putText(textAdd);
+                this.buffer += textAdd;
+            }
+        };
+
+        Console.startsWith = function (arg1, arg2) {
+            if (arg1.length > arg2.length) {
+                return false;
+            }
+            for (var i = 0; i < arg1.length; i++) {
+                if (arg1.charAt(i) !== arg2.charAt(i)) {
+                    return false;
+                }
+            }
+            return true;
         };
 
         Console.prototype.deleteText = function () {
