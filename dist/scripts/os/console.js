@@ -8,19 +8,21 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var TSOS;
 (function (TSOS) {
     var Console = (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdBuffer) {
+        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdBuffer, lastCmd) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
             if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
             if (typeof cmdBuffer === "undefined") { cmdBuffer = []; }
+            if (typeof lastCmd === "undefined") { lastCmd = -1; }
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
             this.cmdBuffer = cmdBuffer;
+            this.lastCmd = lastCmd;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -45,17 +47,40 @@ var TSOS;
                 if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    _OsShell.handleInput(this.buffer);
+                    if (this.buffer.length > 0) {
+                        _OsShell.handleInput(this.buffer);
+                        this.cmdBuffer[this.cmdBuffer.length] = this.buffer;
+                        this.lastCmd = this.cmdBuffer.length;
 
-                    // ... and reset our buffer.
-                    this.buffer = "";
+                        // ... and reset our buffer.
+                        this.buffer = "";
+                    }
                 } else if (chr === String.fromCharCode(8)) {
                     this.deleteText();
                     this.buffer = this.buffer.substring(0, this.buffer.length - 1);
                 } else if (chr === String.fromCharCode(9)) {
                     this.tabComplete(this.buffer);
                 } else if (chr === String.fromCharCode(38)) {
+                    this.lastCmd--;
+                    if (this.lastCmd >= 0) {
+                        this.deleteBuffer();
+                        this.buffer = this.cmdBuffer[this.lastCmd];
+                        this.putText(this.buffer);
+                        //                        this.lastCmd--;
+                    } else {
+                        this.lastCmd++;
+                    }
                 } else if (chr === String.fromCharCode(40)) {
+                    //                    alert(this.lastCmd);
+                    this.lastCmd++;
+                    if (this.lastCmd < this.cmdBuffer.length) {
+                        this.deleteBuffer();
+                        this.buffer = this.cmdBuffer[this.lastCmd];
+                        this.putText(this.buffer);
+                        this.lastCmd++;
+                    } else {
+                        this.lastCmd--;
+                    }
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -65,6 +90,13 @@ var TSOS;
                     this.buffer += chr;
                 }
                 // TODO: Write a case for Ctrl-C.
+            }
+        };
+
+        Console.prototype.deleteBuffer = function () {
+            while (this.buffer.length > 0) {
+                this.deleteText();
+                this.buffer = this.buffer.substring(0, this.buffer.length - 1);
             }
         };
 

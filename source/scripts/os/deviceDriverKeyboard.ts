@@ -46,7 +46,9 @@ module TSOS {
                 (keyCode == 32) ||   // space
                 (keyCode == 13) ||   // enter
                 (keyCode == 9) ||   // tab
-                (keyCode == 8)      // backspace
+                (keyCode == 8) ||
+                (keyCode == 38) ||
+                (keyCode == 40)// backspace
                 ){
 
                 chr = String.fromCharCode(keyCode);
