@@ -47,6 +47,10 @@ var TSOS;
 
                     // ... and reset our buffer.
                     this.buffer = "";
+                } else if (chr === String.fromCharCode(8)) {
+                    this.deleteText();
+                    this.buffer = this.buffer.substring(0, this.buffer.length - 1);
+                } else if (chr === String.fromCharCode(9)) {
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -57,6 +61,15 @@ var TSOS;
                 }
                 // TODO: Write a case for Ctrl-C.
             }
+        };
+
+        Console.prototype.deleteText = function () {
+            var char = this.buffer.charAt(this.buffer.length - 1);
+            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
+            this.currentXPosition -= offset;
+            var temp = this.currentXPosition;
+            _DrawingContext.deleteText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, char);
+            this.currentXPosition = temp;
         };
 
         Console.prototype.putText = function (text) {
