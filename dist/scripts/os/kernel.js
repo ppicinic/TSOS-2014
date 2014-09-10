@@ -161,6 +161,10 @@ var TSOS;
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
 
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
+            var element = document.getElementById("display");
+            element.style.display = "none";
+            var element2 = document.getElementById("divConsole");
+            element2.style.backgroundImage = "url('bsod.png')";
             this.krnShutdown();
         };
         return Kernel;

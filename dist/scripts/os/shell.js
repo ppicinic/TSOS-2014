@@ -28,6 +28,9 @@ var TSOS;
                 _StdOut.advanceLine();
                 _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
             };
+            this.shellRumGone = function (args) {
+                _Kernel.krnTrapError("rum is gone!");
+            };
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -73,6 +76,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellMojito, "mojito", "<string> - Prints out RumOS mojito recipe.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRumGone, "rumgone", "Forces kernel trap.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
