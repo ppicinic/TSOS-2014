@@ -91,12 +91,12 @@ module TSOS {
 
             sc = new ShellCommand(this.shellRumGone,
                                 "rumgone",
-                                "Forces kernel trap.");
+                                "- Forces kernel trap.");
             this.commandList[this.commandList.length] = sc;
 
             sc = new ShellCommand(this.shellLoad,
                                 "load",
-                                "Loads a user program");
+                                "- Loads a user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

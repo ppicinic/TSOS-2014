@@ -94,10 +94,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellMojito, "mojito", "<string> - Prints out RumOS mojito recipe.");
             this.commandList[this.commandList.length] = sc;
 
-            sc = new TSOS.ShellCommand(this.shellRumGone, "rumgone", "Forces kernel trap.");
+            sc = new TSOS.ShellCommand(this.shellRumGone, "rumgone", "- Forces kernel trap.");
             this.commandList[this.commandList.length] = sc;
 
-            sc = new TSOS.ShellCommand(this.shellLoad, "load", "Loads a user program");
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads a user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
