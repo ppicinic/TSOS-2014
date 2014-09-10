@@ -302,7 +302,7 @@ module TSOS {
             if(hours == 0){
                 hour = "" + 12;
             }else if(hours > 12){
-                hour = hours - 12;
+                hour = "" + (hours - 12);
                 night = "P.M.";
             }else if(hours == 12) {
                 hour += hours;
@@ -335,13 +335,7 @@ module TSOS {
             _StdOut.advanceLine();
             _StdOut.putText(".75 oz freshly squeezed lime juice");
             _StdOut.advanceLine();
-            _StdOut.putText("Muddle mint leaves with simple syrup in a shaker.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Add lime juice and rum. Shake with ice. Fine");
-            _StdOut.advanceLine();
-            _StdOut.putText("strain into a collins glass filled with ice.");
-            _StdOut.advanceLine();
-            _StdOut.putText("Garnish with mint sprig.");
+            _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
         }
     }
 }

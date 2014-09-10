@@ -66,10 +66,21 @@ module TSOS {
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                if(text.length > 1) {
+                    for( var i:number = 0; i < text.length; i++ ){
+                        this.putText(text.charAt(i));
+                    }
+                }else{
+                    if(this.currentXPosition > 490){
+                        this.currentXPosition = 0;
+                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                    }
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                    // Move the current X position.
+
+                    this.currentXPosition = this.currentXPosition + offset;
+                }
             }
          }
 
