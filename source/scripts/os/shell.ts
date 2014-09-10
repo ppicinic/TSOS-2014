@@ -364,8 +364,8 @@ module TSOS {
             var program:string = element.value;
             var result:boolean = true;
             for(var i = 0; i < program.length; i++){
-                var c:char = program.charAt(i);
-                if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && <number>c <= '9') || c === ' ' )){
+                var c = program.charAt(i);
+                if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ' )){
                     result = false;
                 }
             }

@@ -60,18 +60,16 @@ var TSOS;
                     this.buffer = this.buffer.substring(0, this.buffer.length - 1);
                 } else if (chr === String.fromCharCode(9)) {
                     this.tabComplete(this.buffer);
-                } else if (chr === String.fromCharCode(38)) {
+                } else if (chr === "up") {
                     this.lastCmd--;
                     if (this.lastCmd >= 0) {
                         this.deleteBuffer();
                         this.buffer = this.cmdBuffer[this.lastCmd];
                         this.putText(this.buffer);
-                        //                        this.lastCmd--;
                     } else {
                         this.lastCmd++;
                     }
-                } else if (chr === String.fromCharCode(40)) {
-                    //                    alert(this.lastCmd);
+                } else if (chr === "down") {
                     this.lastCmd++;
                     if (this.lastCmd < this.cmdBuffer.length) {
                         this.deleteBuffer();
