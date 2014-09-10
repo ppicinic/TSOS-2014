@@ -94,6 +94,11 @@ module TSOS {
                                 "Forces kernel trap.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellLoad,
+                                "load",
+                                "Loads a user program");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -352,6 +357,23 @@ module TSOS {
 
         public shellRumGone = function (args) {
             _Kernel.krnTrapError("rum is gone!");
+        }
+
+        public shellLoad = function(args) {
+            var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
+            var program:string = element.value;
+            var result:boolean = true;
+            for(var i = 0; i < program.length; i++){
+                var c:char = program.charAt(i);
+                if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && <number>c <= '9') || c === ' ' )){
+                    result = false;
+                }
+            }
+            if(result){
+                _StdOut.putText("Program loaded successfully.");
+            }else{
+                _StdOut.putText("Program is invalid.")
+            }
         }
     }
 }

@@ -31,6 +31,22 @@ var TSOS;
             this.shellRumGone = function (args) {
                 _Kernel.krnTrapError("rum is gone!");
             };
+            this.shellLoad = function (args) {
+                var element = document.getElementById("taProgramInput");
+                var program = element.value;
+                var result = true;
+                for (var i = 0; i < program.length; i++) {
+                    var c = program.charAt(i);
+                    if (!((c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ')) {
+                        result = false;
+                    }
+                }
+                if (result) {
+                    _StdOut.putText("Program loaded successfully.");
+                } else {
+                    _StdOut.putText("Program is invalid.");
+                }
+            };
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -79,6 +95,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellRumGone, "rumgone", "Forces kernel trap.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "Loads a user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
