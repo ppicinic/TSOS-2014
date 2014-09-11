@@ -147,8 +147,7 @@ module TSOS {
                     }
                 }else{
                     if(this.currentXPosition > 490){
-                        this.currentXPosition = 0;
-                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                        this.advanceLine();
                     }
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
@@ -160,12 +159,23 @@ module TSOS {
          }
 
         public advanceLine(): void {
-            if(this.currentYPosition > 500 - _FontHeightMargin){
+//            alert("test");
+            if(this.currentYPosition > 500 - (_FontHeightMargin + _DefaultFontSize)){
+//                alert("happens1");
                 var canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("display");
+                var imgt = canvas.toDataURL();
+//                canvas.getContext("2d").drawImage(img, 0, 0);
                 var disp = canvas.getContext("2d");
-                var img = disp.getImageData(0, _FontHeightMargin, 500, 500 - _FontHeightMargin);
-                disp.drawImage(img, 0, 0);
-                this.currentYPosition = 500 - _FontHeightMargin;
+//                var img = disp.getImageData(0, _FontHeightMargin, 500, 500 - _FontHeightMargin);
+//                disp.d
+                var image = new Image();
+                image.src = imgt;
+                this.clearScreen();
+                console.log(this.currentYPosition);
+                console.log(_DefaultFontSize);
+                _DrawingContext.drawImage(image, 0, ((-(_DefaultFontSize+_FontHeightMargin)) +(496 - this.currentYPosition) ) );
+//                alert("happens");
+                this.currentYPosition = 500 - (_FontHeightMargin );
             }else{
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             }
