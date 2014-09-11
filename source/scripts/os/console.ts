@@ -160,8 +160,17 @@ module TSOS {
          }
 
         public advanceLine(): void {
+            if(this.currentYPosition > 500 - _FontHeightMargin){
+                var canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("display");
+                var disp = canvas.getContext("2d");
+                var img = disp.getImageData(0, _FontHeightMargin, 500, 500 - _FontHeightMargin);
+                disp.drawImage(img, 0, 0);
+                this.currentYPosition = 500 - _FontHeightMargin;
+            }else{
+                this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            }
             this.currentXPosition = 0;
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+
             // TODO: Handle scrolling. (Project 1)
         }
     }
