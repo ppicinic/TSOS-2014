@@ -159,22 +159,13 @@ module TSOS {
          }
 
         public advanceLine(): void {
-//            alert("test");
             if(this.currentYPosition > 500 - (_FontHeightMargin + _DefaultFontSize)){
-//                alert("happens1");
                 var canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("display");
-                var imgt = canvas.toDataURL();
-//                canvas.getContext("2d").drawImage(img, 0, 0);
-                var disp = canvas.getContext("2d");
-//                var img = disp.getImageData(0, _FontHeightMargin, 500, 500 - _FontHeightMargin);
-//                disp.d
+                var img = canvas.toDataURL();
                 var image = new Image();
-                image.src = imgt;
+                image.src = img;
                 this.clearScreen();
-                console.log(this.currentYPosition);
-                console.log(_DefaultFontSize);
                 _DrawingContext.drawImage(image, 0, ((-(_DefaultFontSize+_FontHeightMargin)) +(496 - this.currentYPosition) ) );
-//                alert("happens");
                 this.currentYPosition = 500 - (_FontHeightMargin );
             }else{
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
