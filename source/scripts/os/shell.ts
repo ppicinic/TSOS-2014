@@ -9,7 +9,6 @@
    ------------ */
 
 // TODO: Write a base class / prototype for system services and let Shell inherit from it.
-
 module TSOS {
     export class Shell {
         // Properties
@@ -75,6 +74,31 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellDate,
+                                "date",
+                                "<date> - Displays current date and time.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellWhereami,
+                                "whereami",
+                                "<string> - Displays drive location.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellMojito,
+                                "mojito",
+                                "<string> - Prints out RumOS mojito recipe.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellRumGone,
+                                "rumgone",
+                                "- Forces kernel trap.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellLoad,
+                                "load",
+                                "- Loads a user program");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -125,6 +149,14 @@ module TSOS {
                     this.execute(this.shellInvalidCommand);
                 }
             }
+        }
+
+        public getCommands() : string[]{
+            var commands:string[] = [];
+            for(var i = 0; i < this.commandList.length; i++){
+                commands[i] = this.commandList[i].command;
+            }
+            return commands;
         }
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
@@ -199,7 +231,7 @@ module TSOS {
         }
 
         public shellVer(args) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.putText(APP_NAME + " veerrsion " + APP_VERSION);
         }
 
         public shellHelp(args) {
@@ -279,5 +311,69 @@ module TSOS {
             }
         }
 
+        public shellDate(args) {
+            var date = new Date();
+            var hours = date.getHours();
+            var hour = "";
+            var night = "A.M.";
+            if(hours == 0){
+                hour = "" + 12;
+            }else if(hours > 12){
+                hour = "" + (hours - 12);
+                night = "P.M.";
+            }else if(hours == 12) {
+                hour += hours;
+                night = "P.M.";
+            }else{
+                hour += hours;
+            }
+            var mins = date.getMinutes();
+            var min = "";
+            if(mins < 10){
+                min = "0" + mins;
+            }else{
+                min += mins;
+            }
+            _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
+        }
+
+        public shellWhereami(args) {
+            _StdOut.putText("R:\\PirateShip\\RumCellar\\");
+        }
+
+        public shellMojito = function (args) {
+            _StdOut.putText("Ingredients:");
+            _StdOut.advanceLine();
+            _StdOut.putText("2 oz light rum (Banks 5 Island Rum recommended)");
+            _StdOut.advanceLine();
+            _StdOut.putText("8 - 10 mint leaves, 1 sprig for garnish");
+            _StdOut.advanceLine();
+            _StdOut.putText("1 oz simple syrup");
+            _StdOut.advanceLine();
+            _StdOut.putText(".75 oz freshly squeezed lime juice");
+            _StdOut.advanceLine();
+            _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
+        }
+
+        public shellRumGone = function (args) {
+            _Kernel.krnTrapError("rum is gone!");
+        }
+
+        public shellLoad = function(args) {
+            var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
+            var program:string = element.value;
+            var result:boolean = true;
+            for(var i = 0; i < program.length; i++){
+                var c = program.charAt(i);
+                if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ' )){
+                    result = false;
+                }
+            }
+            if(result){
+                _StdOut.putText("Program loaded successfully.");
+            }else{
+                _StdOut.putText("Program is invalid.")
+            }
+        }
     }
 }

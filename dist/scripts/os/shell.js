@@ -15,6 +15,38 @@ var TSOS;
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
+            this.shellMojito = function (args) {
+                _StdOut.putText("Ingredients:");
+                _StdOut.advanceLine();
+                _StdOut.putText("2 oz light rum (Banks 5 Island Rum recommended)");
+                _StdOut.advanceLine();
+                _StdOut.putText("8 - 10 mint leaves, 1 sprig for garnish");
+                _StdOut.advanceLine();
+                _StdOut.putText("1 oz simple syrup");
+                _StdOut.advanceLine();
+                _StdOut.putText(".75 oz freshly squeezed lime juice");
+                _StdOut.advanceLine();
+                _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
+            };
+            this.shellRumGone = function (args) {
+                _Kernel.krnTrapError("rum is gone!");
+            };
+            this.shellLoad = function (args) {
+                var element = document.getElementById("taProgramInput");
+                var program = element.value;
+                var result = true;
+                for (var i = 0; i < program.length; i++) {
+                    var c = program.charAt(i);
+                    if (!((c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ')) {
+                        result = false;
+                    }
+                }
+                if (result) {
+                    _StdOut.putText("Program loaded successfully.");
+                } else {
+                    _StdOut.putText("Program is invalid.");
+                }
+            };
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -51,6 +83,21 @@ var TSOS;
 
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellDate, "date", "<date> - Displays current date and time.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "<string> - Displays drive location.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellMojito, "mojito", "<string> - Prints out RumOS mojito recipe.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRumGone, "rumgone", "- Forces kernel trap.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads a user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -105,6 +152,14 @@ var TSOS;
                     this.execute(this.shellInvalidCommand);
                 }
             }
+        };
+
+        Shell.prototype.getCommands = function () {
+            var commands = [];
+            for (var i = 0; i < this.commandList.length; i++) {
+                commands[i] = this.commandList[i].command;
+            }
+            return commands;
         };
 
         // args is an option parameter, ergo the ? which allows TypeScript to understand that
@@ -183,7 +238,7 @@ var TSOS;
         };
 
         Shell.prototype.shellVer = function (args) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+            _StdOut.putText(APP_NAME + " veerrsion " + APP_VERSION);
         };
 
         Shell.prototype.shellHelp = function (args) {
@@ -262,6 +317,36 @@ var TSOS;
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        };
+
+        Shell.prototype.shellDate = function (args) {
+            var date = new Date();
+            var hours = date.getHours();
+            var hour = "";
+            var night = "A.M.";
+            if (hours == 0) {
+                hour = "" + 12;
+            } else if (hours > 12) {
+                hour = "" + (hours - 12);
+                night = "P.M.";
+            } else if (hours == 12) {
+                hour += hours;
+                night = "P.M.";
+            } else {
+                hour += hours;
+            }
+            var mins = date.getMinutes();
+            var min = "";
+            if (mins < 10) {
+                min = "0" + mins;
+            } else {
+                min += mins;
+            }
+            _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
+        };
+
+        Shell.prototype.shellWhereami = function (args) {
+            _StdOut.putText("R:\\PirateShip\\RumCellar\\");
         };
         return Shell;
     })();

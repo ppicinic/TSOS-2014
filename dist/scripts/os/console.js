@@ -8,17 +8,21 @@ Note: This is not the Shell.  The Shell is the "command line interface" (CLI) or
 var TSOS;
 (function (TSOS) {
     var Console = (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
+        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer, cmdBuffer, lastCmd) {
             if (typeof currentFont === "undefined") { currentFont = _DefaultFontFamily; }
             if (typeof currentFontSize === "undefined") { currentFontSize = _DefaultFontSize; }
             if (typeof currentXPosition === "undefined") { currentXPosition = 0; }
             if (typeof currentYPosition === "undefined") { currentYPosition = _DefaultFontSize; }
             if (typeof buffer === "undefined") { buffer = ""; }
+            if (typeof cmdBuffer === "undefined") { cmdBuffer = []; }
+            if (typeof lastCmd === "undefined") { lastCmd = -1; }
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.cmdBuffer = cmdBuffer;
+            this.lastCmd = lastCmd;
         }
         Console.prototype.init = function () {
             this.clearScreen();
@@ -43,10 +47,38 @@ var TSOS;
                 if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    _OsShell.handleInput(this.buffer);
+                    if (this.buffer.length > 0) {
+                        _OsShell.handleInput(this.buffer);
+                        this.cmdBuffer[this.cmdBuffer.length] = this.buffer;
+                        this.lastCmd = this.cmdBuffer.length;
 
-                    // ... and reset our buffer.
-                    this.buffer = "";
+                        // ... and reset our buffer.
+                        this.buffer = "";
+                    }
+                } else if (chr === String.fromCharCode(8)) {
+                    this.deleteText();
+                    this.buffer = this.buffer.substring(0, this.buffer.length - 1);
+                } else if (chr === String.fromCharCode(9)) {
+                    this.tabComplete(this.buffer);
+                } else if (chr === "up") {
+                    this.lastCmd--;
+                    if (this.lastCmd >= 0) {
+                        this.deleteBuffer();
+                        this.buffer = this.cmdBuffer[this.lastCmd];
+                        this.putText(this.buffer);
+                    } else {
+                        this.lastCmd++;
+                    }
+                } else if (chr === "down") {
+                    this.lastCmd++;
+                    if (this.lastCmd < this.cmdBuffer.length) {
+                        this.deleteBuffer();
+                        this.buffer = this.cmdBuffer[this.lastCmd];
+                        this.putText(this.buffer);
+                        this.lastCmd++;
+                    } else {
+                        this.lastCmd--;
+                    }
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -59,6 +91,50 @@ var TSOS;
             }
         };
 
+        Console.prototype.deleteBuffer = function () {
+            while (this.buffer.length > 0) {
+                this.deleteText();
+                this.buffer = this.buffer.substring(0, this.buffer.length - 1);
+            }
+        };
+
+        Console.prototype.tabComplete = function (buffer) {
+            var commands = [];
+            var commandList = _OsShell.getCommands();
+            for (var i = 0; i < commandList.length; i++) {
+                var cmd = commandList[i];
+                if (Console.startsWith(buffer, cmd)) {
+                    commands[commands.length] = commandList[i];
+                }
+            }
+            if (commands.length == 1) {
+                var textAdd = commands[0].substring(this.buffer.length, commands[0].length);
+                this.putText(textAdd);
+                this.buffer += textAdd;
+            }
+        };
+
+        Console.startsWith = function (arg1, arg2) {
+            if (arg1.length > arg2.length) {
+                return false;
+            }
+            for (var i = 0; i < arg1.length; i++) {
+                if (arg1.charAt(i) !== arg2.charAt(i)) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        Console.prototype.deleteText = function () {
+            var char = this.buffer.charAt(this.buffer.length - 1);
+            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, char);
+            this.currentXPosition -= offset;
+            var temp = this.currentXPosition;
+            _DrawingContext.deleteText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, char);
+            this.currentXPosition = temp;
+        };
+
         Console.prototype.putText = function (text) {
             // My first inclination here was to write two functions: putChar() and putString().
             // Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
@@ -68,11 +144,21 @@ var TSOS;
             // UPDATE: Even though we are now working in TypeScript, char and string remain undistinguished.
             if (text !== "") {
                 // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
+                if (text.length > 1) {
+                    for (var i = 0; i < text.length; i++) {
+                        this.putText(text.charAt(i));
+                    }
+                } else {
+                    if (this.currentXPosition > 490) {
+                        this.currentXPosition = 0;
+                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                    }
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
 
-                // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                    // Move the current X position.
+                    this.currentXPosition = this.currentXPosition + offset;
+                }
             }
         };
 
