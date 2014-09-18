@@ -65,6 +65,12 @@ module TSOS {
             // Update the log console.
             var taLog = <HTMLInputElement> document.getElementById("taHostLog");
             taLog.value = str + taLog.value;
+
+
+            var statusBar = <HTMLParagraphElement> document.getElementById("taStatusBarDate");
+
+            var date = new Date();
+            statusBar.innerHTML = date.toDateString() + " " + date.toLocaleTimeString();
             // Optionally update a log database or some streaming service.
         }
 
@@ -87,6 +93,8 @@ module TSOS {
             _CPU = new Cpu();
             _CPU.init();
 
+            var statusBar = document.getElementById('taStatusBarStatus');
+            statusBar.innerHTML = "On";
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             // .. and call the OS Kernel Bootstrap routine.
@@ -97,16 +105,23 @@ module TSOS {
         public static hostBtnHaltOS_click(btn): void {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
+
+            var statusBar = document.getElementById('taStatusBarStatus');
+            statusBar.innerHTML = "Off";
+
             // Call the OS shutdown routine.
             _Kernel.krnShutdown();
             // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
+            var statusDate = document.getElementById('taStatusBarDate');
+            statusDate.innerHTML = "Unavailable";
             // TODO: Is there anything else we need to do here?
         }
 
         public static hostBtnReset_click(btn): void {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload(true);
+
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.

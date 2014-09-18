@@ -147,8 +147,7 @@ module TSOS {
                     }
                 }else{
                     if(this.currentXPosition > 490){
-                        this.currentXPosition = 0;
-                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                        this.advanceLine();
                     }
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
@@ -160,12 +159,14 @@ module TSOS {
          }
 
         public advanceLine(): void {
-            if(this.currentYPosition > 500 - _FontHeightMargin){
+            if(this.currentYPosition > 500 - (_FontHeightMargin + _DefaultFontSize)){
                 var canvas:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("display");
-                var disp = canvas.getContext("2d");
-                var img = disp.getImageData(0, _FontHeightMargin, 500, 500 - _FontHeightMargin);
-                disp.drawImage(img, 0, 0);
-                this.currentYPosition = 500 - _FontHeightMargin;
+                var img = canvas.toDataURL();
+                var image = new Image();
+                image.src = img;
+                this.clearScreen();
+                _DrawingContext.drawImage(image, 0, ((-(_DefaultFontSize+_FontHeightMargin)) +(496 - this.currentYPosition) ) );
+                this.currentYPosition = 500 - (_FontHeightMargin );
             }else{
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             }

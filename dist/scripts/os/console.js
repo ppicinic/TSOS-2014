@@ -150,8 +150,7 @@ var TSOS;
                     }
                 } else {
                     if (this.currentXPosition > 490) {
-                        this.currentXPosition = 0;
-                        this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+                        this.advanceLine();
                     }
                     var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                     _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
@@ -163,8 +162,18 @@ var TSOS;
         };
 
         Console.prototype.advanceLine = function () {
+            if (this.currentYPosition > 500 - (_FontHeightMargin + _DefaultFontSize)) {
+                var canvas = document.getElementById("display");
+                var img = canvas.toDataURL();
+                var image = new Image();
+                image.src = img;
+                this.clearScreen();
+                _DrawingContext.drawImage(image, 0, ((-(_DefaultFontSize + _FontHeightMargin)) + (496 - this.currentYPosition)));
+                this.currentYPosition = 500 - (_FontHeightMargin);
+            } else {
+                this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
+            }
             this.currentXPosition = 0;
-            this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
             // TODO: Handle scrolling. (Project 1)
         };
         return Console;
