@@ -87,6 +87,9 @@ var TSOS;
             _CPU = new TSOS.Cpu();
             _CPU.init();
 
+            var statusBar = document.getElementById('taStatusBarStatus');
+            statusBar.innerHTML = "On";
+
             // ... then set the host clock pulse ...
             _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
 
@@ -99,11 +102,16 @@ var TSOS;
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
 
+            var statusBar = document.getElementById('taStatusBarStatus');
+            statusBar.innerHTML = "Off";
+
             // Call the OS shutdown routine.
             _Kernel.krnShutdown();
 
             // Stop the interval that's simulating our clock pulse.
             clearInterval(_hardwareClockID);
+            var statusDate = document.getElementById('taStatusBarDate');
+            statusDate.innerHTML = "Unavailable";
             // TODO: Is there anything else we need to do here?
         };
 
