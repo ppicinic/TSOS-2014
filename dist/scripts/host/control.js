@@ -61,6 +61,11 @@ var TSOS;
             // Update the log console.
             var taLog = document.getElementById("taHostLog");
             taLog.value = str + taLog.value;
+
+            var statusBar = document.getElementById("taStatusBarDate");
+
+            var date = new Date();
+            statusBar.innerHTML = date.toDateString() + " " + date.toLocaleTimeString();
             // Optionally update a log database or some streaming service.
         };
 

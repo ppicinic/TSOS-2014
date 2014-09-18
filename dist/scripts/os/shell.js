@@ -47,6 +47,10 @@ var TSOS;
                     _StdOut.putText("Program is invalid.");
                 }
             };
+            this.shellStatus = function (args) {
+                var element = document.getElementById('taStatusBarStatus');
+                element.innerHTML = args[0];
+            };
         }
         Shell.prototype.init = function () {
             var sc = null;
@@ -98,6 +102,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads a user program");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

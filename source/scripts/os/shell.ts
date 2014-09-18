@@ -99,6 +99,9 @@ module TSOS {
                                 "- Loads a user program");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -374,6 +377,11 @@ module TSOS {
             }else{
                 _StdOut.putText("Program is invalid.")
             }
+        }
+
+        public shellStatus = function(args){
+            var element = <HTMLParagraphElement> document.getElementById('taStatusBarStatus');
+            element.innerHTML = args[0];
         }
     }
 }
