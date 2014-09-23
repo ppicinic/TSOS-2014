@@ -314,6 +314,8 @@ module TSOS {
             }
         }
 
+        // prints out the current date
+        // could probably use some optimization
         public shellDate(args) {
             var date = new Date();
             var hours = date.getHours();
@@ -340,10 +342,12 @@ module TSOS {
             _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
         }
 
+        // tells where the user is located
         public shellWhereami(args) {
             _StdOut.putText("R:\\PirateShip\\RumCellar\\");
         }
 
+        // Mojito command gives you nifty quick access to the mojito recipe
         public shellMojito = function (args) {
             _StdOut.putText("Ingredients:");
             _StdOut.advanceLine();
@@ -358,10 +362,12 @@ module TSOS {
             _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
         }
 
+        // BSOD test shell command
         public shellRumGone = function (args) {
             _Kernel.krnTrapError("rum is gone!");
         }
 
+        // loads a user program and validates the input
         public shellLoad = function(args) {
             var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
             var program:string = element.value;
@@ -379,6 +385,7 @@ module TSOS {
             }
         }
 
+        // changes the status of the OS status bar
         public shellStatus = function(args){
             var element = <HTMLParagraphElement> document.getElementById('taStatusBarStatus');
             element.innerHTML = args[0];
