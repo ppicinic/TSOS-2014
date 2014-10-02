@@ -15,6 +15,7 @@ var TSOS;
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
+            // Mojito command gives you nifty quick access to the mojito recipe
             this.shellMojito = function (args) {
                 _StdOut.putText("Ingredients:");
                 _StdOut.advanceLine();
@@ -28,9 +29,11 @@ var TSOS;
                 _StdOut.advanceLine();
                 _StdOut.putText("Muddle mint leaves with simple syrup in a shaker. Add lime juice and rum. Shake with ice. Fine strain into a collins glass filled with ice. Garnish with mint sprig.");
             };
+            // BSOD test shell command
             this.shellRumGone = function (args) {
                 _Kernel.krnTrapError("rum is gone!");
             };
+            // loads a user program and validates the input
             this.shellLoad = function (args) {
                 var element = document.getElementById("taProgramInput");
                 var program = element.value;
@@ -47,6 +50,7 @@ var TSOS;
                     _StdOut.putText("Program is invalid.");
                 }
             };
+            // changes the status of the OS status bar
             this.shellStatus = function (args) {
                 var element = document.getElementById('taStatusBarStatus');
                 element.innerHTML = args[0];
@@ -326,6 +330,8 @@ var TSOS;
             }
         };
 
+        // prints out the current date
+        // could probably use some optimization
         Shell.prototype.shellDate = function (args) {
             var date = new Date();
             var hours = date.getHours();
@@ -352,6 +358,7 @@ var TSOS;
             _StdOut.putText(date.toLocaleDateString() + " " + hour + ":" + min + " " + night);
         };
 
+        // tells where the user is located
         Shell.prototype.shellWhereami = function (args) {
             _StdOut.putText("R:\\PirateShip\\RumCellar\\");
         };

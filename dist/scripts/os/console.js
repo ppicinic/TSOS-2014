@@ -164,11 +164,9 @@ var TSOS;
         Console.prototype.advanceLine = function () {
             if (this.currentYPosition > 500 - (_FontHeightMargin + _DefaultFontSize)) {
                 var canvas = document.getElementById("display");
-                var img = canvas.toDataURL();
-                var image = new Image();
-                image.src = img;
+                var img = canvas.getContext("2d").getImageData(0, 0, 500, 500);
                 this.clearScreen();
-                _DrawingContext.drawImage(image, 0, ((-(_DefaultFontSize + _FontHeightMargin)) + (496 - this.currentYPosition)));
+                _DrawingContext.putImageData(img, 0, ((-(_DefaultFontSize + _FontHeightMargin)) + (496 - this.currentYPosition)));
                 this.currentYPosition = 500 - (_FontHeightMargin);
             } else {
                 this.currentYPosition += _DefaultFontSize + _FontHeightMargin;
