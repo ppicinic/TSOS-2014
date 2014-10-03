@@ -371,14 +371,24 @@ module TSOS {
         public shellLoad = function(args) {
             var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
             var program:string = element.value;
+            program = program.trim();
+            var memoryString : string = "";
             var result:boolean = true;
             for(var i = 0; i < program.length; i++){
                 var c = program.charAt(i);
                 if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ' )){
                     result = false;
+                }else{
+                    if(c !== ' ') {
+                        memoryString += program.charAt(i);
+                    }
                 }
             }
+            if(program.length == 0 || program.length % 2 != 0){
+                result = false;
+            }
             if(result){
+                _MemoryManager.loadMemory(memoryString);
                 _StdOut.putText("Program loaded successfully.");
             }else{
                 _StdOut.putText("Program is invalid.")

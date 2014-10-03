@@ -93,6 +93,9 @@ module TSOS {
             _CPU = new Cpu();
             _CPU.init();
 
+            _Memory = new Memory();
+            _Memory.init();
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
             // ... then set the host clock pulse ...

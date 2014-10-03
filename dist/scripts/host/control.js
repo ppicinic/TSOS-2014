@@ -87,6 +87,9 @@ var TSOS;
             _CPU = new TSOS.Cpu();
             _CPU.init();
 
+            _Memory = new TSOS.Memory();
+            _Memory.init();
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
 
