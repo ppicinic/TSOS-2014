@@ -17,12 +17,14 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
-        constructor() {
+        constructor(public pcb: number[] = []) {
 
         }
 
         public init() {
             var sc = null;
+            this.pcb = [];
+            console.log(this.pcb)
             //
             // Load the command list.
 
@@ -389,7 +391,9 @@ module TSOS {
             }
             if(result){
                 _MemoryManager.loadMemory(memoryString);
-                _StdOut.putText("Program loaded successfully.");
+                var i : number = _OsShell.pcb.length + 1;
+                _OsShell.pcb[i - 1] = 0;
+                _StdOut.putText("Program loaded with PID " + i + ".");
             }else{
                 _StdOut.putText("Program is invalid.")
             }

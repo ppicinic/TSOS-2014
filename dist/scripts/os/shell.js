@@ -9,7 +9,9 @@ The OS Shell - The "command line interface" (CLI) for the console.
 var TSOS;
 (function (TSOS) {
     var Shell = (function () {
-        function Shell() {
+        function Shell(pcb) {
+            if (typeof pcb === "undefined") { pcb = []; }
+            this.pcb = pcb;
             // Properties
             this.promptStr = ">";
             this.commandList = [];
@@ -55,7 +57,9 @@ var TSOS;
                 }
                 if (result) {
                     _MemoryManager.loadMemory(memoryString);
-                    _StdOut.putText("Program loaded successfully.");
+                    var i = _OsShell.pcb.length + 1;
+                    _OsShell.pcb[i - 1] = 0;
+                    _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
@@ -68,6 +72,8 @@ var TSOS;
         }
         Shell.prototype.init = function () {
             var sc = null;
+            this.pcb = [];
+            console.log(this.pcb);
 
             //
             // Load the command list.
