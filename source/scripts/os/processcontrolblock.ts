@@ -8,24 +8,21 @@ module TSOS {
 
         constructor(public start : number,
             public length : number,
-            public pos : number = 0
-            ){
-
+            public end : number = 0){
+            this.end = this.start + this.length;
         }
 
         public init() : void{
 
         }
 
-        public getNextCommand() : string{
-            var r = _MemoryManager.getMemoryBlock(this.start + this.pos);
-            this.pos++;
+        public getBlock(pos : number) : string{
+            var r = _MemoryManager.getMemoryBlock(pos);
             return r;
         }
 
-        public isFinished() : boolean{
-            if(this.pos == this.length){
-                this.pos = 0;
+        public isFinished(pos : number) : boolean{
+            if(pos == this.end){
                 return true;
             }else{
                 return false;

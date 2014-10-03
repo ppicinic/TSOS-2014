@@ -4,24 +4,23 @@
 var TSOS;
 (function (TSOS) {
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(start, length, pos) {
-            if (typeof pos === "undefined") { pos = 0; }
+        function ProcessControlBlock(start, length, end) {
+            if (typeof end === "undefined") { end = 0; }
             this.start = start;
             this.length = length;
-            this.pos = pos;
+            this.end = end;
+            this.end = this.start + this.length;
         }
         ProcessControlBlock.prototype.init = function () {
         };
 
-        ProcessControlBlock.prototype.getNextCommand = function () {
-            var r = _MemoryManager.getMemoryBlock(this.start + this.pos);
-            this.pos++;
+        ProcessControlBlock.prototype.getBlock = function (pos) {
+            var r = _MemoryManager.getMemoryBlock(pos);
             return r;
         };
 
-        ProcessControlBlock.prototype.isFinished = function () {
-            if (this.pos == this.length) {
-                this.pos = 0;
+        ProcessControlBlock.prototype.isFinished = function (pos) {
+            if (pos == this.end) {
                 return true;
             } else {
                 return false;

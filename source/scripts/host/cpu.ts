@@ -40,6 +40,7 @@ module TSOS {
 
         public setPcb(newPcb : ProcessControlBlock){
             this.pcb = newPcb;
+            this.PC = this.pcb.start;
             this.isExecuting = true;
         }
 
@@ -51,12 +52,22 @@ module TSOS {
             if(this.isExecuting){
                 if(this.pcb != null){
                     // do next command
-                    this.pcb.getNextCommand();
-                    if(this.pcb.isFinished()){
+                    var command = this.pcb.getBlock(this.PC);
+
+                    this.PC++;
+                    _Console.putText("t");
+                    if(this.pcb.isFinished(this.PC)){
                         this.pcb = null;
                         this.isExecuting = false;
                     }
                 }
+            }
+        }
+
+        private doCommand(command) : void {
+            switch (command){
+                case "A9":
+                    this.Acc =
             }
         }
     }
