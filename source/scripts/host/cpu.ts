@@ -53,9 +53,12 @@ module TSOS {
                 if(this.pcb != null){
                     // do next command
                     var command = this.pcb.getBlock(this.PC);
-
                     this.PC++;
-                    _Console.putText("t");
+                    this.doCommand(command);
+                    this.updateDisplay()
+
+
+//                    _Console.putText("t");
                     if(this.pcb.isFinished(this.PC)){
                         this.pcb = null;
                         this.isExecuting = false;
@@ -64,10 +67,22 @@ module TSOS {
             }
         }
 
-        private doCommand(command) : void {
+        private updateDisplay() : void{
+            console.log(this.Acc);
+            document.getElementById("taPC").innerHTML = MemoryManager.decToHex(this.PC);
+            document.getElementById("taAcc").innerHTML = MemoryManager.decToHex(this.Acc);
+            document.getElementById("taXReg").innerHTML = MemoryManager.decToHex(this.Xreg);
+            document.getElementById("taYReg").innerHTML = MemoryManager.decToHex(this.Yreg);
+            document.getElementById("taZFlag").innerHTML = MemoryManager.decToHex(this.Zflag);
+        }
+
+        private doCommand(command : number) : void {
             switch (command){
-                case "A9":
-                    this.Acc =
+                // A9
+                case 169:
+                    this.Acc = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    break;
             }
         }
     }

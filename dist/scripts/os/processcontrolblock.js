@@ -15,8 +15,7 @@ var TSOS;
         };
 
         ProcessControlBlock.prototype.getBlock = function (pos) {
-            var r = _MemoryManager.getMemoryBlock(pos);
-            return r;
+            return _MemoryManager.getMemoryBlock(pos);
         };
 
         ProcessControlBlock.prototype.isFinished = function (pos) {

@@ -11,7 +11,7 @@ module TSOS {
         }
 
         public init(): void{
-            for(var i = 0; i < 1536; i++){
+            for(var i = 0; i < 768; i++){
                 this.memory[i] = 0;
             }
         }

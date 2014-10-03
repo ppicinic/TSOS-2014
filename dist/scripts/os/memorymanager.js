@@ -30,16 +30,18 @@ var TSOS;
                     cell.innerHTML = "0x" + MemoryManager.transform2(i * 8);
                     for (var y = 1; y <= 8; y++) {
                         var cell = row.cells.item(y);
-                        var a = ((((i + 1) * y) - 1) * 2);
-                        var b = a + 1;
-                        var c = _Memory.getMemoryBlock(a);
-                        var d = _Memory.getMemoryBlock(b);
-                        cell.innerHTML = MemoryManager.transform(c) + MemoryManager.transform(d);
+                        var a = _Memory.getMemoryBlock(((i + 1) * y) - 1);
+                        cell.innerHTML = MemoryManager.decToHex(a);
                     }
                 }
             }
         };
 
+        MemoryManager.decToHex = function (i) {
+            var x = Math.floor(i / 16);
+            var y = Math.floor((i - (x * 16)));
+            return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
+        };
         MemoryManager.transform2 = function (i) {
             var x = Math.floor(i / 256);
             var y = Math.floor((i - (x * 256)) / 16);
@@ -85,32 +87,37 @@ var TSOS;
             return parseInt(hexChar.charAt(0));
         };
 
+        MemoryManager.hexToDec = function (hex) {
+            var x = MemoryManager.getNumericValue(hex.charAt(0)) * 16;
+            x += MemoryManager.getNumericValue(hex.charAt(1));
+            return x;
+        };
+
         MemoryManager.prototype.loadMemory = function (hexValue) {
             for (var i = 0; i < hexValue.length; i += 2) {
                 var valA = hexValue.charAt(i);
                 var valB = hexValue.charAt(i + 1);
-                var a = MemoryManager.getNumericValue(valA);
-                var b = MemoryManager.getNumericValue(valB);
-                _Memory.setMemoryBlock(i, a);
-                _Memory.setMemoryBlock(i, b);
-
-                //                this.updateControl(i * 2);
-                var x = Math.floor(i / 16);
-                var y = (i - (x * 16)) / 2;
-                var cell = this.memoryTable.rows.item(x).cells.item(y + 1);
-                cell.innerHTML = valA + valB;
+                var a = MemoryManager.hexToDec(valA + valB);
+                _Memory.setMemoryBlock(i / 2, a);
+                this.updateControl(i / 2);
+                //                var x = Math.floor(i / 16);
+                //                var y = (i - (x * 16)) / 2;
+                //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
+                //                cell.innerHTML = valA + valB;
             }
         };
 
         MemoryManager.prototype.getMemoryBlock = function (i) {
-            var x = i * 2;
-            var y = x + 1;
-            var r1 = _Memory.getMemoryBlock(x);
-            var r2 = _Memory.getMemoryBlock(y);
-            return MemoryManager.transform(r1) + MemoryManager.transform(r2);
+            return _Memory.getMemoryBlock(i);
         };
 
         MemoryManager.prototype.updateControl = function (i) {
+            var rowNumber = Math.floor((i / 8));
+            var cellNumber = i - (rowNumber * 8) + 1;
+            var a = _Memory.getMemoryBlock(i);
+            var row = this.memoryTable.rows.item(rowNumber);
+            var cell = row.cells.item(cellNumber);
+            cell.innerHTML = MemoryManager.decToHex(a);
             //            var a = ((((i + 1) * y) - 1) * 2);
             //            var b = a + 1;
             //            var c = _Memory.getMemoryBlock(a);

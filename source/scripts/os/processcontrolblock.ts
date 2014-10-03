@@ -16,9 +16,8 @@ module TSOS {
 
         }
 
-        public getBlock(pos : number) : string{
-            var r = _MemoryManager.getMemoryBlock(pos);
-            return r;
+        public getBlock(pos : number) : number{
+            return _MemoryManager.getMemoryBlock(pos);
         }
 
         public isFinished(pos : number) : boolean{

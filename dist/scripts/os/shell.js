@@ -40,6 +40,7 @@ var TSOS;
                 var element = document.getElementById("taProgramInput");
                 var program = element.value;
                 program = program.trim();
+                program = program.toUpperCase();
                 var memoryString = "";
                 var result = true;
                 for (var i = 0; i < program.length; i++) {
@@ -52,7 +53,7 @@ var TSOS;
                         }
                     }
                 }
-                if (program.length == 0 || program.length % 2 != 0) {
+                if (program.length == 0 || memoryString.length % 2 != 0) {
                     result = false;
                 }
                 if (result) {

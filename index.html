@@ -81,6 +81,26 @@
     <button onclick="TSOS.Control.turnSingleStepOnOff()">Single Step</button>
     <button onclick="TSOS.Control.singleStep()">Step</button>
 
+    <div id="divCPU">
+        <table>
+            <tbody>
+            <tr>
+                <td>PC</td>
+                <td>Acc</td>
+                <td>X-Reg</td>
+                <td>Y-Reg</td>
+                <td>Z Flag</td>
+            </tr>
+            <tr>
+                <td id="taPC">00</td>
+                <td id="taAcc">00</td>
+                <td id="taXReg">00</td>
+                <td id="taYReg">00</td>
+                <td id="taZFlag">00</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
     <div id="divMemory" style="height: 300px; width: 300px; overflow-y: scroll;">
             <table id="memory">
                 <tbody></tbody>

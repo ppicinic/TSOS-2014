@@ -377,6 +377,7 @@ module TSOS {
             var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
             var program:string = element.value;
             program = program.trim();
+            program = program.toUpperCase();
             var memoryString : string = "";
             var result:boolean = true;
             for(var i = 0; i < program.length; i++){
@@ -389,7 +390,7 @@ module TSOS {
                     }
                 }
             }
-            if(program.length == 0 || program.length % 2 != 0){
+            if(program.length == 0 || memoryString.length % 2 != 0){
                 result = false;
             }
             if(result){

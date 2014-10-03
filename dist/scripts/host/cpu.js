@@ -55,9 +55,11 @@ var TSOS;
                 if (this.pcb != null) {
                     // do next command
                     var command = this.pcb.getBlock(this.PC);
-
                     this.PC++;
-                    _Console.putText("t");
+                    this.doCommand(command);
+                    this.updateDisplay();
+
+                    //                    _Console.putText("t");
                     if (this.pcb.isFinished(this.PC)) {
                         this.pcb = null;
                         this.isExecuting = false;
@@ -66,9 +68,21 @@ var TSOS;
             }
         };
 
+        Cpu.prototype.updateDisplay = function () {
+            console.log(this.Acc);
+            document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
+            document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
+            document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
+            document.getElementById("taYReg").innerHTML = TSOS.MemoryManager.decToHex(this.Yreg);
+            document.getElementById("taZFlag").innerHTML = TSOS.MemoryManager.decToHex(this.Zflag);
+        };
+
         Cpu.prototype.doCommand = function (command) {
             switch (command) {
-                case "A9":
+                case 169:
+                    this.Acc = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    break;
             }
         };
         return Cpu;
