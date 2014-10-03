@@ -57,6 +57,8 @@ var _StdOut = null;
 var _Console: TSOS.Console;
 var _OsShell: TSOS.Shell;
 
+var _SingleStep: boolean = false;
+
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;
 

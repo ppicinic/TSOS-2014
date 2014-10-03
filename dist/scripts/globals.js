@@ -53,6 +53,8 @@ var _StdOut = null;
 var _Console;
 var _OsShell;
 
+var _SingleStep = false;
+
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
 

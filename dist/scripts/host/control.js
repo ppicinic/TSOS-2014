@@ -40,6 +40,8 @@ var TSOS;
             // Use the TypeScript cast to HTMLInputElement
             document.getElementById("btnStartOS").focus();
 
+            _SingleStep = false;
+
             // Check for our testing and enrichment core.
             if (typeof Glados === "function") {
                 _GLaDOS = new Glados();
@@ -99,6 +101,22 @@ var TSOS;
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new TSOS.Kernel();
             _Kernel.krnBootstrap();
+        };
+
+        Control.turnSingleStepOnOff = function () {
+            if (_SingleStep) {
+                _SingleStep = false;
+                _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+            } else {
+                _SingleStep = true;
+                clearInterval(_hardwareClockID);
+            }
+        };
+
+        Control.singleStep = function () {
+            if (_SingleStep) {
+                TSOS.Devices.hostClockPulse();
+            }
         };
 
         Control.hostBtnHaltOS_click = function (btn) {
