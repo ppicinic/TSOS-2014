@@ -13,19 +13,21 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
-        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting) {
+        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
             if (typeof PC === "undefined") { PC = 0; }
             if (typeof Acc === "undefined") { Acc = 0; }
             if (typeof Xreg === "undefined") { Xreg = 0; }
             if (typeof Yreg === "undefined") { Yreg = 0; }
             if (typeof Zflag === "undefined") { Zflag = 0; }
             if (typeof isExecuting === "undefined") { isExecuting = false; }
+            if (typeof pcb === "undefined") { pcb = null; }
             this.PC = PC;
             this.Acc = Acc;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
+            this.pcb = pcb;
         }
         Cpu.prototype.init = function () {
             this.PC = 0;
@@ -36,10 +38,28 @@ var TSOS;
             this.isExecuting = false;
         };
 
+        Cpu.prototype.setPcb = function (newPcb) {
+            this.pcb = newPcb;
+            this.isExecuting = true;
+        };
+
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
+
             // TODO: Accumulate CPU usage and profiling statistics here.
+            console.log("happens");
+
             // Do the real work here. Be sure to set this.isExecuting appropriately.
+            if (this.isExecuting) {
+                if (this.pcb != null) {
+                    // do next command
+                    this.pcb.getNextCommand();
+                    if (this.pcb.isFinished()) {
+                        this.pcb = null;
+                        this.isExecuting = false;
+                    }
+                }
+            }
         };
         return Cpu;
     })();

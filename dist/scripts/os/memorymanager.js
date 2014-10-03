@@ -102,6 +102,14 @@ var TSOS;
             }
         };
 
+        MemoryManager.prototype.getMemoryBlock = function (i) {
+            var x = i * 2;
+            var y = x + 1;
+            var r1 = _Memory.getMemoryBlock(x);
+            var r2 = _Memory.getMemoryBlock(y);
+            return MemoryManager.transform(r1) + MemoryManager.transform(r2);
+        };
+
         MemoryManager.prototype.updateControl = function (i) {
             //            var a = ((((i + 1) * y) - 1) * 2);
             //            var b = a + 1;

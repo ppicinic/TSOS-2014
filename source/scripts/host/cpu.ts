@@ -24,7 +24,8 @@ module TSOS {
                     public Xreg: number = 0,
                     public Yreg: number = 0,
                     public Zflag: number = 0,
-                    public isExecuting: boolean = false) {
+                    public isExecuting: boolean = false,
+                    public pcb : ProcessControlBlock = null) {
 
         }
 
@@ -37,10 +38,26 @@ module TSOS {
             this.isExecuting = false;
         }
 
+        public setPcb(newPcb : ProcessControlBlock){
+            this.pcb = newPcb;
+            this.isExecuting = true;
+        }
+
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
+            console.log("happens");
             // Do the real work here. Be sure to set this.isExecuting appropriately.
+            if(this.isExecuting){
+                if(this.pcb != null){
+                    // do next command
+                    this.pcb.getNextCommand();
+                    if(this.pcb.isFinished()){
+                        this.pcb = null;
+                        this.isExecuting = false;
+                    }
+                }
+            }
         }
     }
 }

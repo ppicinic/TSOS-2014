@@ -104,6 +104,9 @@ module TSOS {
             sc = new ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -391,12 +394,17 @@ module TSOS {
             }
             if(result){
                 _MemoryManager.loadMemory(memoryString);
-                var i : number = _OsShell.pcb.length + 1;
-                _OsShell.pcb[i - 1] = 0;
+                var pcb : ProcessControlBlock = new ProcessControlBlock(0, memoryString.length / 2);
+                var i = _ProcessManager.add(pcb);
                 _StdOut.putText("Program loaded with PID " + i + ".");
             }else{
                 _StdOut.putText("Program is invalid.")
             }
+        }
+
+        public shellRun = function(args){
+            var pcb : ProcessControlBlock = _ProcessManager.getPcb(args[0]);
+            _CPU.setPcb(pcb);
         }
 
         // changes the status of the OS status bar

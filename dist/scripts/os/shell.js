@@ -57,12 +57,16 @@ var TSOS;
                 }
                 if (result) {
                     _MemoryManager.loadMemory(memoryString);
-                    var i = _OsShell.pcb.length + 1;
-                    _OsShell.pcb[i - 1] = 0;
+                    var pcb = new TSOS.ProcessControlBlock(0, memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
                     _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
+            };
+            this.shellRun = function (args) {
+                var pcb = _ProcessManager.getPcb(args[0]);
+                _CPU.setPcb(pcb);
             };
             // changes the status of the OS status bar
             this.shellStatus = function (args) {
@@ -125,6 +129,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
