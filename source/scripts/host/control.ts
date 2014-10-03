@@ -109,16 +109,16 @@ module TSOS {
         public static turnSingleStepOnOff() : void{
             if(_SingleStep){
                 _SingleStep = false;
-                _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+//                _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             }else{
                 _SingleStep = true;
-                clearInterval(_hardwareClockID);
+//                clearInterval(_hardwareClockID);
             }
         }
 
         public static singleStep(): void{
-            if(_SingleStep) {
-                Devices.hostClockPulse();
+            if(_SingleStep && _CPU.isExecuting) {
+                _CPU.cycle();
             }
         }
 

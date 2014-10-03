@@ -106,16 +106,16 @@ var TSOS;
         Control.turnSingleStepOnOff = function () {
             if (_SingleStep) {
                 _SingleStep = false;
-                _hardwareClockID = setInterval(TSOS.Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
+                //                _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
             } else {
                 _SingleStep = true;
-                clearInterval(_hardwareClockID);
+                //                clearInterval(_hardwareClockID);
             }
         };
 
         Control.singleStep = function () {
-            if (_SingleStep) {
-                TSOS.Devices.hostClockPulse();
+            if (_SingleStep && _CPU.isExecuting) {
+                _CPU.cycle();
             }
         };
 
