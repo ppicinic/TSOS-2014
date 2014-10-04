@@ -115,6 +115,11 @@ module TSOS {
             return _Memory.getMemoryBlock(i);
         }
 
+        public setMemoryBlock(index: number, value: number){
+            _Memory.setMemoryBlock(index, value);
+            this.updateControl(index);
+        }
+
         public updateControl(i : number) : void{
             var rowNumber = Math.floor((i / 8));
             var cellNumber = i - (rowNumber * 8) + 1;

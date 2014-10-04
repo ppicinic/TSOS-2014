@@ -19,7 +19,7 @@ var TSOS;
         };
 
         ProcessControlBlock.prototype.isFinished = function (pos) {
-            if (pos == this.end) {
+            if (pos >= this.end) {
                 return true;
             } else {
                 return false;

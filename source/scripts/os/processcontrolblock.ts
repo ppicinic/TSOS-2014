@@ -21,7 +21,7 @@ module TSOS {
         }
 
         public isFinished(pos : number) : boolean{
-            if(pos == this.end){
+            if(pos >= this.end){
                 return true;
             }else{
                 return false;

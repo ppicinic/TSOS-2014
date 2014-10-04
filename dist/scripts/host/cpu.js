@@ -42,14 +42,13 @@ var TSOS;
             this.pcb = newPcb;
             this.PC = this.pcb.start;
             this.isExecuting = true;
+            this.updateDisplay();
         };
 
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace('CPU cycle');
 
             // TODO: Accumulate CPU usage and profiling statistics here.
-            console.log("happens");
-
             // Do the real work here. Be sure to set this.isExecuting appropriately.
             if (this.isExecuting) {
                 if (this.pcb != null) {
@@ -69,7 +68,6 @@ var TSOS;
         };
 
         Cpu.prototype.updateDisplay = function () {
-            console.log(this.Acc);
             document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
             document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
@@ -82,6 +80,93 @@ var TSOS;
                 case 169:
                     this.Acc = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
+                    break;
+                case 173:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    this.Acc = _Memory.getMemoryBlock(val);
+                    break;
+                case 141:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    _MemoryManager.setMemoryBlock(val, this.Acc);
+                    break;
+                case 109:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    var value = _Memory.getMemoryBlock(val);
+                    this.Acc += value;
+                    if (this.Acc > 255) {
+                        this.Acc = 255;
+                    }
+                    break;
+                case 162:
+                    this.Xreg = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    break;
+                case 160:
+                    this.Yreg = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    break;
+                case 174:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    this.Xreg = _Memory.getMemoryBlock(val);
+                    break;
+                case 172:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    this.Yreg = _Memory.getMemoryBlock(val);
+                    break;
+                case 234:
+                    break;
+                case 236:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    var value = _Memory.getMemoryBlock(val);
+                    if (value == this.Xreg) {
+                        this.Zflag = 0;
+                    } else {
+                        this.Zflag = 255;
+                    }
+                    break;
+                case 208:
+                    var val = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    if (this.Zflag == 0) {
+                        this.PC = val;
+                    }
+                    break;
+                case 238:
+                    var valA = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var valB = _Memory.getMemoryBlock(this.PC);
+                    this.PC++;
+                    var val = (valB * 256) + valA;
+                    var value = _Memory.getMemoryBlock(val);
+                    value++;
+                    if (value > 255) {
+                        value = 255;
+                    }
+                    _MemoryManager.setMemoryBlock(val, value);
                     break;
             }
         };

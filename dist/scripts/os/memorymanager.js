@@ -111,6 +111,11 @@ var TSOS;
             return _Memory.getMemoryBlock(i);
         };
 
+        MemoryManager.prototype.setMemoryBlock = function (index, value) {
+            _Memory.setMemoryBlock(index, value);
+            this.updateControl(index);
+        };
+
         MemoryManager.prototype.updateControl = function (i) {
             var rowNumber = Math.floor((i / 8));
             var cellNumber = i - (rowNumber * 8) + 1;
