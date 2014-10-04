@@ -169,6 +169,34 @@ module TSOS {
                     }
                     _MemoryManager.setMemoryBlock(val, value);
                     break;
+                case 0:
+                    this.sysCall();
+                    break;
+                case 255:
+                    this.sysCall();
+                    break;
+            }
+        }
+
+        public sysCall(){
+            switch(this.Xreg){
+                case 1:
+                    var output : string = "" + this.Yreg;
+                    _StdOut.putText(output);
+                    break;
+                case 2:
+                    var i = this.Yreg;
+                    var x = _Memory.getMemoryBlock(i);
+                    var output = "";
+                    i++;
+                    while(x != 0){
+                        var c = String.fromCharCode(x);
+                        output += c;
+                        x = _Memory.getMemoryBlock(i);
+                        i++;
+                    }
+                    _StdOut.putText(output);
+                    break;
             }
         }
     }
