@@ -143,17 +143,18 @@ module TSOS {
                     this.PC++;
                     var val = (valB * 256) + valA;
                     var value = _Memory.getMemoryBlock(val);
+                    console.log(val);
+                    console.log(value);
                     if(value == this.Xreg){
-                        this.Zflag = 0;
-                    }else{
                         this.Zflag = 255;
+                    }else{
+                        this.Zflag = 0;
                     }
                     break;
                 case 208:
                     var val = _Memory.getMemoryBlock(this.PC);
-                    this.PC++;
                     if(this.Zflag == 0){
-                        this.PC = val;
+                        this.PC = this.PC - (255 - val);
                     }
                     break;
                 case 238:
