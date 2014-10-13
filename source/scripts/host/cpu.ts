@@ -171,7 +171,6 @@ module TSOS {
                     _MemoryManager.setMemoryBlock(val, value);
                     break;
                 case 0:
-                    this.sysCall();
                     break;
                 case 255:
                     this.sysCall();
