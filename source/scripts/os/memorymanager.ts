@@ -10,6 +10,9 @@ module TSOS {
 
         }
 
+        /**
+         * Initializes memory manager and the host display
+         */
         public init() : void {
             this.memoryTable = <HTMLTableElement> document.getElementById("memory");
 //            this.memoryTable.insertRow()
@@ -41,17 +44,30 @@ module TSOS {
 
         }
 
+        /**
+         * Converts decimal to hex
+         * Should be moved to utils?
+         * @param i the number to convert
+         * @returns {string} the converted hex
+         */
         public static decToHex(i : number ): string{
             var x = Math.floor(i / 16);
             var y = Math.floor((i - (x * 16)));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
         }
+        /**
+         * Converts decimal to hex
+         * Should be moved to utils?
+         * @param i the number to convert
+         * @returns {string} the converted hex
+         */
         private static transform2(i : number): string{
             var x = Math.floor(i / 256);
             var y = Math.floor((i - (x * 256)) / 16);
             var z = ((i - (x * 256)) - (y * 16));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
         }
+        // Converts a 4 bit number to hex
         public static transform(i : number): string{
             if(i < 10){
                 return "" + i;
@@ -73,6 +89,7 @@ module TSOS {
             return "";
         }
 
+        // Converts a single hex character to decimal
         public static getNumericValue(hexChar : string): number{
             switch (hexChar.charAt(0)){
                 case 'A':
@@ -91,12 +108,21 @@ module TSOS {
             return parseInt(hexChar.charAt(0));
         }
 
+        /**
+         * Converts hex to decimal
+         * @param hex the hex to convert
+         * @returns {number} the converted decimal
+         */
         public static hexToDec(hex : String):number{
             var x = MemoryManager.getNumericValue(hex.charAt(0))* 16;
             x += MemoryManager.getNumericValue(hex.charAt(1));
             return x;
         }
 
+        /**
+         * Store a hex value in memory
+         * @param hexValue the hex value
+         */
         public loadMemory(hexValue : string){
             for(var i = 0; i < hexValue.length; i += 2){
                 var valA = hexValue.charAt(i);
@@ -111,15 +137,29 @@ module TSOS {
             }
         }
 
+        /**
+         * Gets a block of memory
+         * @param i the specified block
+         * @returns {number} the value in memory
+         */
         public getMemoryBlock(i : number): number{
             return _Memory.getMemoryBlock(i);
         }
 
+        /**
+         * Sets a block at memory
+         * @param index the specified block
+         * @param value the value to store
+         */
         public setMemoryBlock(index: number, value: number){
             _Memory.setMemoryBlock(index, value);
             this.updateControl(index);
         }
 
+        /**
+         * Updates the host display
+         * @param i the block in memory to update
+         */
         public updateControl(i : number) : void{
             var rowNumber = Math.floor((i / 8));
             var cellNumber = i - (rowNumber * 8) + 1;

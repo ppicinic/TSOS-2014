@@ -8,6 +8,9 @@ var TSOS;
             if (typeof memoryTable === "undefined") { memoryTable = null; }
             this.memoryTable = memoryTable;
         }
+        /**
+        * Initializes memory manager and the host display
+        */
         MemoryManager.prototype.init = function () {
             this.memoryTable = document.getElementById("memory");
 
@@ -37,17 +40,32 @@ var TSOS;
             }
         };
 
+        /**
+        * Converts decimal to hex
+        * Should be moved to utils?
+        * @param i the number to convert
+        * @returns {string} the converted hex
+        */
         MemoryManager.decToHex = function (i) {
             var x = Math.floor(i / 16);
             var y = Math.floor((i - (x * 16)));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
         };
+
+        /**
+        * Converts decimal to hex
+        * Should be moved to utils?
+        * @param i the number to convert
+        * @returns {string} the converted hex
+        */
         MemoryManager.transform2 = function (i) {
             var x = Math.floor(i / 256);
             var y = Math.floor((i - (x * 256)) / 16);
             var z = ((i - (x * 256)) - (y * 16));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
         };
+
+        // Converts a 4 bit number to hex
         MemoryManager.transform = function (i) {
             if (i < 10) {
                 return "" + i;
@@ -69,6 +87,7 @@ var TSOS;
             return "";
         };
 
+        // Converts a single hex character to decimal
         MemoryManager.getNumericValue = function (hexChar) {
             switch (hexChar.charAt(0)) {
                 case 'A':
@@ -87,12 +106,21 @@ var TSOS;
             return parseInt(hexChar.charAt(0));
         };
 
+        /**
+        * Converts hex to decimal
+        * @param hex the hex to convert
+        * @returns {number} the converted decimal
+        */
         MemoryManager.hexToDec = function (hex) {
             var x = MemoryManager.getNumericValue(hex.charAt(0)) * 16;
             x += MemoryManager.getNumericValue(hex.charAt(1));
             return x;
         };
 
+        /**
+        * Store a hex value in memory
+        * @param hexValue the hex value
+        */
         MemoryManager.prototype.loadMemory = function (hexValue) {
             for (var i = 0; i < hexValue.length; i += 2) {
                 var valA = hexValue.charAt(i);
@@ -107,15 +135,29 @@ var TSOS;
             }
         };
 
+        /**
+        * Gets a block of memory
+        * @param i the specified block
+        * @returns {number} the value in memory
+        */
         MemoryManager.prototype.getMemoryBlock = function (i) {
             return _Memory.getMemoryBlock(i);
         };
 
+        /**
+        * Sets a block at memory
+        * @param index the specified block
+        * @param value the value to store
+        */
         MemoryManager.prototype.setMemoryBlock = function (index, value) {
             _Memory.setMemoryBlock(index, value);
             this.updateControl(index);
         };
 
+        /**
+        * Updates the host display
+        * @param i the block in memory to update
+        */
         MemoryManager.prototype.updateControl = function (i) {
             var rowNumber = Math.floor((i / 8));
             var cellNumber = i - (rowNumber * 8) + 1;
