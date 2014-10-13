@@ -13,7 +13,7 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
-        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
+        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting, pcb, Ir) {
             if (typeof PC === "undefined") { PC = 0; }
             if (typeof Acc === "undefined") { Acc = 0; }
             if (typeof Xreg === "undefined") { Xreg = 0; }
@@ -21,6 +21,7 @@ var TSOS;
             if (typeof Zflag === "undefined") { Zflag = 0; }
             if (typeof isExecuting === "undefined") { isExecuting = false; }
             if (typeof pcb === "undefined") { pcb = null; }
+            if (typeof ir === "undefined") { Ir = 0; }
             this.PC = PC;
             this.Acc = Acc;
             this.Xreg = Xreg;
@@ -28,6 +29,7 @@ var TSOS;
             this.Zflag = Zflag;
             this.isExecuting = isExecuting;
             this.pcb = pcb;
+            this.Ir = Ir;
         }
         Cpu.prototype.init = function () {
             this.PC = 0;
@@ -36,6 +38,7 @@ var TSOS;
             this.Yreg = 0;
             this.Zflag = 0;
             this.isExecuting = false;
+            this.Ir = 0;
         };
 
         Cpu.prototype.setPcb = function (newPcb) {
@@ -55,6 +58,7 @@ var TSOS;
                     // do next command
                     var command = this.pcb.getBlock(this.PC);
                     this.PC++;
+                    this.Ir = command;
                     this.doCommand(command);
                     this.updateDisplay();
 
@@ -73,6 +77,7 @@ var TSOS;
             document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
             document.getElementById("taYReg").innerHTML = TSOS.MemoryManager.decToHex(this.Yreg);
             document.getElementById("taZFlag").innerHTML = TSOS.MemoryManager.decToHex(this.Zflag);
+            document.getElementById("taIr").innerHTML = TSOS.MemoryManager.decToHex(this.Ir);
         };
 
         Cpu.prototype.doCommand = function (command) {
