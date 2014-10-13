@@ -38,6 +38,10 @@ var TSOS;
             this.isExecuting = false;
         };
 
+        /**
+        * Sets a PCB to be executed by the CPU
+        * @param newPcb
+        */
         Cpu.prototype.setPcb = function (newPcb) {
             this.pcb = newPcb;
             this.PC = this.pcb.start;
@@ -67,6 +71,9 @@ var TSOS;
             }
         };
 
+        /**
+        * Updates the host display
+        */
         Cpu.prototype.updateDisplay = function () {
             document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
             document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
@@ -75,6 +82,10 @@ var TSOS;
             document.getElementById("taZFlag").innerHTML = TSOS.MemoryManager.decToHex(this.Zflag);
         };
 
+        /**
+        * Handles an opcode and does necessary operations
+        * @param command the opcode to execute.
+        */
         Cpu.prototype.doCommand = function (command) {
             switch (command) {
                 case 169:
@@ -177,6 +188,9 @@ var TSOS;
             }
         };
 
+        /**
+        * Does a system call and prints to the console
+        */
         Cpu.prototype.sysCall = function () {
             switch (this.Xreg) {
                 case 1:

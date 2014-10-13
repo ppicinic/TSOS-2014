@@ -38,6 +38,10 @@ module TSOS {
             this.isExecuting = false;
         }
 
+        /**
+         * Sets a PCB to be executed by the CPU
+         * @param newPcb
+         */
         public setPcb(newPcb : ProcessControlBlock){
             this.pcb = newPcb;
             this.PC = this.pcb.start;
@@ -67,6 +71,9 @@ module TSOS {
             }
         }
 
+        /**
+         * Updates the host display
+         */
         private updateDisplay() : void{
             document.getElementById("taPC").innerHTML = MemoryManager.decToHex(this.PC);
             document.getElementById("taAcc").innerHTML = MemoryManager.decToHex(this.Acc);
@@ -75,6 +82,10 @@ module TSOS {
             document.getElementById("taZFlag").innerHTML = MemoryManager.decToHex(this.Zflag);
         }
 
+        /**
+         * Handles an opcode and does necessary operations
+         * @param command the opcode to execute.
+         */
         private doCommand(command : number) : void {
             switch (command){
                 // A9
@@ -178,6 +189,9 @@ module TSOS {
             }
         }
 
+        /**
+         * Does a system call and prints to the console
+         */
         public sysCall(){
             switch(this.Xreg){
                 case 1:
