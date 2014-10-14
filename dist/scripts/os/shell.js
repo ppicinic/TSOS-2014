@@ -9,7 +9,9 @@ The OS Shell - The "command line interface" (CLI) for the console.
 var TSOS;
 (function (TSOS) {
     var Shell = (function () {
-        function Shell() {
+        function Shell(pcb) {
+            if (typeof pcb === "undefined") { pcb = []; }
+            this.pcb = pcb;
             // Properties
             this.promptStr = ">";
             this.commandList = [];
@@ -37,18 +39,35 @@ var TSOS;
             this.shellLoad = function (args) {
                 var element = document.getElementById("taProgramInput");
                 var program = element.value;
+                program = program.trim();
+                program = program.toUpperCase();
+                var memoryString = "";
                 var result = true;
                 for (var i = 0; i < program.length; i++) {
                     var c = program.charAt(i);
                     if (!((c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ')) {
                         result = false;
+                    } else {
+                        if (c !== ' ') {
+                            memoryString += program.charAt(i);
+                        }
                     }
                 }
+                if (program.length == 0 || memoryString.length % 2 != 0) {
+                    result = false;
+                }
                 if (result) {
-                    _StdOut.putText("Program loaded successfully.");
+                    _MemoryManager.loadMemory(memoryString);
+                    var pcb = new TSOS.ProcessControlBlock(0, memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
+                    _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
+            };
+            this.shellRun = function (args) {
+                var pcb = _ProcessManager.getPcb(args[0]);
+                _CPU.setPcb(pcb);
             };
             // changes the status of the OS status bar
             this.shellStatus = function (args) {
@@ -58,6 +77,8 @@ var TSOS;
         }
         Shell.prototype.init = function () {
             var sc = null;
+            this.pcb = [];
+            console.log(this.pcb);
 
             //
             // Load the command list.
@@ -109,6 +130,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

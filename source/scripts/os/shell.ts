@@ -17,12 +17,14 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
-        constructor() {
+        constructor(public pcb: number[] = []) {
 
         }
 
         public init() {
             var sc = null;
+            this.pcb = [];
+            console.log(this.pcb)
             //
             // Load the command list.
 
@@ -100,6 +102,9 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
             sc = new ShellCommand(this.shellStatus, "status", "<string> - Sets a status message by the user");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs
@@ -371,18 +376,36 @@ module TSOS {
         public shellLoad = function(args) {
             var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
             var program:string = element.value;
+            program = program.trim();
+            program = program.toUpperCase();
+            var memoryString : string = "";
             var result:boolean = true;
             for(var i = 0; i < program.length; i++){
                 var c = program.charAt(i);
                 if(!( (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || (c >= '0' && c <= '9') || c === ' ' )){
                     result = false;
+                }else{
+                    if(c !== ' ') {
+                        memoryString += program.charAt(i);
+                    }
                 }
             }
+            if(program.length == 0 || memoryString.length % 2 != 0){
+                result = false;
+            }
             if(result){
-                _StdOut.putText("Program loaded successfully.");
+                _MemoryManager.loadMemory(memoryString);
+                var pcb : ProcessControlBlock = new ProcessControlBlock(0, memoryString.length / 2);
+                var i = _ProcessManager.add(pcb);
+                _StdOut.putText("Program loaded with PID " + i + ".");
             }else{
                 _StdOut.putText("Program is invalid.")
             }
+        }
+
+        public shellRun = function(args){
+            var pcb : ProcessControlBlock = _ProcessManager.getPcb(args[0]);
+            _CPU.setPcb(pcb);
         }
 
         // changes the status of the OS status bar
