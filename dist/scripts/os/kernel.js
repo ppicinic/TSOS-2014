@@ -22,8 +22,14 @@ var TSOS;
             _KernelInputQueue = new TSOS.Queue(); // Where device input lands before being processed out somewhere.
             _Console = new TSOS.Console(); // The command line interface / console I/O device.
 
+            _ProcessManager = new TSOS.ProcessManager();
+            _ProcessManager.init();
+
             // Initialize the console.
             _Console.init();
+
+            _MemoryManager = new TSOS.MemoryManager();
+            _MemoryManager.init();
 
             // Initialize standard input and output to the _Console.
             _StdIn = _Console;
@@ -79,7 +85,7 @@ var TSOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting) {
+            } else if (_CPU.isExecuting && !_SingleStep) {
                 _CPU.cycle();
             } else {
                 this.krnTrace("Idle");

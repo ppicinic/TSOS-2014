@@ -46,6 +46,9 @@ var _KernelInterruptQueue = null;
 var _KernelBuffers: any[] = null;
 var _KernelInputQueue = null;
 
+var _Memory : TSOS.Memory;
+var _MemoryManager : TSOS.MemoryManager;
+
 // Standard input and output
 var _StdIn  = null;
 var _StdOut = null;
@@ -53,6 +56,10 @@ var _StdOut = null;
 // UI
 var _Console: TSOS.Console;
 var _OsShell: TSOS.Shell;
+
+var _SingleStep: boolean = false;
+
+var _ProcessManager : TSOS.ProcessManager;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode: boolean = false;

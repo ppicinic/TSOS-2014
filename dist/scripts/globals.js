@@ -42,6 +42,9 @@ var _KernelInterruptQueue = null;
 var _KernelBuffers = null;
 var _KernelInputQueue = null;
 
+var _Memory;
+var _MemoryManager;
+
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
@@ -49,6 +52,10 @@ var _StdOut = null;
 // UI
 var _Console;
 var _OsShell;
+
+var _SingleStep = false;
+
+var _ProcessManager;
 
 // At least this OS is not trying to kill you. (Yet.)
 var _SarcasticMode = false;
