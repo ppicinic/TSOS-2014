@@ -20,6 +20,7 @@ module TSOS {
     export class Cpu {
 
         constructor(public PC: number = 0,
+                    public IR: number = 0,
                     public Acc: number = 0,
                     public Xreg: number = 0,
                     public Yreg: number = 0,
@@ -31,6 +32,7 @@ module TSOS {
 
         public init(): void {
             this.PC = 0;
+            this.IR = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
@@ -59,6 +61,7 @@ module TSOS {
                     var command = this.pcb.getBlock(this.PC);
                     this.PC++;
                     this.doCommand(command);
+                    this.IR = command;
                     this.updateDisplay()
 
 
@@ -76,6 +79,7 @@ module TSOS {
          */
         private updateDisplay() : void{
             document.getElementById("taPC").innerHTML = MemoryManager.decToHex(this.PC);
+            document.getElementById("taIR").innerHTML = MemoryManager.decToHex(this.IR);
             document.getElementById("taAcc").innerHTML = MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = MemoryManager.decToHex(this.Xreg);
             document.getElementById("taYReg").innerHTML = MemoryManager.decToHex(this.Yreg);
@@ -165,7 +169,14 @@ module TSOS {
                 case 208:
                     var val = _Memory.getMemoryBlock(this.PC);
                     if(this.Zflag == 0){
-                        this.PC = this.PC - (255 - val);
+                        this.PC += val;
+                        console.log(val);
+                        if(this.PC > 256){
+                            this.PC -= 256;
+                        }
+                    }else{
+                        console.log("nobranch");
+                        this.PC++;
                     }
                     break;
                 case 238:
@@ -199,12 +210,16 @@ module TSOS {
                     _StdOut.putText(output);
                     break;
                 case 2:
+//                    console.log("happens");
                     var i = this.Yreg;
                     var x = _Memory.getMemoryBlock(i);
                     var output = "";
                     i++;
                     while(x != 0){
                         var c = String.fromCharCode(x);
+//                        alert(c);
+//                        alert(i);
+//                        i++;
                         output += c;
                         x = _Memory.getMemoryBlock(i);
                         i++;

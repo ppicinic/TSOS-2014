@@ -13,8 +13,9 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
-        function Cpu(PC, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
+        function Cpu(PC, IR, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
             if (typeof PC === "undefined") { PC = 0; }
+            if (typeof IR === "undefined") { IR = 0; }
             if (typeof Acc === "undefined") { Acc = 0; }
             if (typeof Xreg === "undefined") { Xreg = 0; }
             if (typeof Yreg === "undefined") { Yreg = 0; }
@@ -22,6 +23,7 @@ var TSOS;
             if (typeof isExecuting === "undefined") { isExecuting = false; }
             if (typeof pcb === "undefined") { pcb = null; }
             this.PC = PC;
+            this.IR = IR;
             this.Acc = Acc;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
@@ -31,6 +33,7 @@ var TSOS;
         }
         Cpu.prototype.init = function () {
             this.PC = 0;
+            this.IR = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
@@ -60,6 +63,7 @@ var TSOS;
                     var command = this.pcb.getBlock(this.PC);
                     this.PC++;
                     this.doCommand(command);
+                    this.IR = command;
                     this.updateDisplay();
 
                     //                    _Console.putText("t");
@@ -76,6 +80,7 @@ var TSOS;
         */
         Cpu.prototype.updateDisplay = function () {
             document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
+            document.getElementById("taIR").innerHTML = TSOS.MemoryManager.decToHex(this.IR);
             document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
             document.getElementById("taYReg").innerHTML = TSOS.MemoryManager.decToHex(this.Yreg);
@@ -164,7 +169,14 @@ var TSOS;
                 case 208:
                     var val = _Memory.getMemoryBlock(this.PC);
                     if (this.Zflag == 0) {
-                        this.PC = this.PC - (255 - val);
+                        this.PC += val;
+                        console.log(val);
+                        if (this.PC > 256) {
+                            this.PC -= 256;
+                        }
+                    } else {
+                        console.log("nobranch");
+                        this.PC++;
                     }
                     break;
                 case 238:
@@ -198,12 +210,17 @@ var TSOS;
                     _StdOut.putText(output);
                     break;
                 case 2:
+                    //                    console.log("happens");
                     var i = this.Yreg;
                     var x = _Memory.getMemoryBlock(i);
                     var output = "";
                     i++;
                     while (x != 0) {
                         var c = String.fromCharCode(x);
+
+                        //                        alert(c);
+                        //                        alert(i);
+                        //                        i++;
                         output += c;
                         x = _Memory.getMemoryBlock(i);
                         i++;
