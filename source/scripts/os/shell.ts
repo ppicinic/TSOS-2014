@@ -113,6 +113,9 @@ module TSOS {
             sc = new ShellCommand(this.shellRunAll, "runall", "- Runs all active processes.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellQuantum, "quantum", "<tick> - sets the quantum rate.");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -421,6 +424,10 @@ module TSOS {
 
         public shellClearMem = function(args){
             _MemoryManager.clearMem();
+        }
+
+        public shellQuantum = function(args){
+            _CPUScheduler.setQuantum(args[0]);
         }
 
         // changes the status of the OS status bar
