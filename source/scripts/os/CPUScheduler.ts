@@ -14,7 +14,7 @@ module TSOS {
         }
 
         public init(): void{
-
+            this.updateDisplay();
         }
 
         // 0 do nothing
@@ -102,13 +102,15 @@ module TSOS {
         }
 
         public display() : void {
-            _StdOut.putText("PID    PC   ACC    X    Y     Z");
+            _StdOut.putText("PID    PC   IR   ACC    X    Y     Z");
             for(var i = 0; i < this.displayQueue.length; i++){
                 _StdOut.advanceLine();
                 var pcb = this.displayQueue[i];
                 _StdOut.putText(this.pad3(pcb.getPID().toString()));
                 _StdOut.putText("   ");
                 _StdOut.putText(this.pad3(MemoryManager.decToHex2(pcb.getPC())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad2(MemoryManager.decToHex(pcb.getIR())));
                 _StdOut.putText("   ");
                 _StdOut.putText(this.pad3(MemoryManager.decToHex(pcb.getAcc())));
                 _StdOut.putText("   ");
@@ -120,22 +122,52 @@ module TSOS {
             }
         }
 
+        public updateDisplay(){
+
+            var output : string = "";
+            output += "PID    PC   IR   Acc    X    Y    Z   State";
+            if(this.displayQueue.length == 0){
+                output += "\nThere are no running processes."
+            }
+            for(var i = 0; i < this.displayQueue.length; i++){
+                var pcb = this.displayQueue[i];
+                output += "\n";
+                output += this.pad3(pcb.getPID().toString());
+                output += "   ";
+                output += this.pad3(MemoryManager.decToHex2(pcb.getPC()));
+                output += "   ";
+                output += this.pad2(MemoryManager.decToHex(pcb.getIR()));
+                output += "   ";
+                output += this.pad3(MemoryManager.decToHex(pcb.getAcc()));
+                output += "   ";
+                output += this.pad2(MemoryManager.decToHex(pcb.getXReg()));
+                output += "   ";
+                output += this.pad2(MemoryManager.decToHex(pcb.getYReg()));
+                output += "   ";
+                output += this.pad2(MemoryManager.decToHex(pcb.getZFlag()));
+                output += "   ";
+                output += pcb.getState();
+
+            }
+            document.getElementById("taPCBDisplay").innerHTML = output;
+        }
+
         private pad3(text : string) : string {
             if(text.length == 0){
-                _StdOut.putText("   ");
+                return "   ";
             }else if(text.length == 1){
-                _StdOut.putText("  ");
+                return "  "  + text
             }else if(text.length == 2){
-                _StdOut.putText(" ");
+                return " " + text;
             }
             return text;
         }
 
         private pad2(text : string) : string {
             if(text.length == 0){
-                _StdOut.putText("  ");
+                return "  ";
             }else if(text.length == 1){
-                _StdOut.putText(" ");
+                return " " + text;
             }
             return text;
         }

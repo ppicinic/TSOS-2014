@@ -67,6 +67,7 @@ var TSOS;
             if (choice == 1) {
                 _Kernel.krnTrace('Context Switch');
                 this.pcb = _CPUScheduler.next();
+                this.pcb.setState("Running");
                 this.PC = this.pcb.getPC();
                 this.Acc = this.pcb.getAcc();
                 this.Xreg = this.pcb.getXReg();
@@ -78,9 +79,11 @@ var TSOS;
                 this.updateDisplay();
             } else if (choice == 2) {
                 _Kernel.krnTrace('Context Switch');
-                this.pcb.dumpRegisters(this.PC, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+                this.pcb.dumpRegisters(this.PC, this.IR, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+                this.pcb.setState("Waiting");
                 _CPUScheduler.add(this.pcb);
                 this.pcb = _CPUScheduler.next();
+                this.pcb.setState("Running");
                 this.PC = this.pcb.getPC();
                 this.Acc = this.pcb.getAcc();
                 this.Xreg = this.pcb.getXReg();
@@ -97,15 +100,16 @@ var TSOS;
                 this.doCommand(command);
                 this.IR = command;
                 this.updateDisplay();
-                this.pcb.dumpRegisters(this.PC, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+                this.pcb.dumpRegisters(this.PC, this.IR, this.Acc, this.Xreg, this.Yreg, this.Zflag);
 
                 //                    _Console.putText("t");
                 if (this.pcb.isFinished(this.PC)) {
                     _CPUScheduler.finish(this.pcb.getPID());
+                    this.pcb.setState("Finished");
                     this.pcb = null;
                     this.isExecuting = false;
-                    this.cycle();
                 }
+                _CPUScheduler.updateDisplay();
             }
             //            if(this.isExecuting){
             //                if(this.pcb != null){

@@ -14,6 +14,7 @@ var TSOS;
             this.tick = tick;
         }
         CPUScheduler.prototype.init = function () {
+            this.updateDisplay();
         };
 
         // 0 do nothing
@@ -99,13 +100,15 @@ var TSOS;
         };
 
         CPUScheduler.prototype.display = function () {
-            _StdOut.putText("PID    PC   ACC    X    Y     Z");
+            _StdOut.putText("PID    PC   IR   ACC    X    Y     Z");
             for (var i = 0; i < this.displayQueue.length; i++) {
                 _StdOut.advanceLine();
                 var pcb = this.displayQueue[i];
                 _StdOut.putText(this.pad3(pcb.getPID().toString()));
                 _StdOut.putText("   ");
                 _StdOut.putText(this.pad3(TSOS.MemoryManager.decToHex2(pcb.getPC())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad2(TSOS.MemoryManager.decToHex(pcb.getIR())));
                 _StdOut.putText("   ");
                 _StdOut.putText(this.pad3(TSOS.MemoryManager.decToHex(pcb.getAcc())));
                 _StdOut.putText("   ");
@@ -117,22 +120,50 @@ var TSOS;
             }
         };
 
+        CPUScheduler.prototype.updateDisplay = function () {
+            var output = "";
+            output += "PID    PC   IR   Acc    X    Y    Z   State";
+            if (this.displayQueue.length == 0) {
+                output += "\nThere are no running processes.";
+            }
+            for (var i = 0; i < this.displayQueue.length; i++) {
+                var pcb = this.displayQueue[i];
+                output += "\n";
+                output += this.pad3(pcb.getPID().toString());
+                output += "   ";
+                output += this.pad3(TSOS.MemoryManager.decToHex2(pcb.getPC()));
+                output += "   ";
+                output += this.pad2(TSOS.MemoryManager.decToHex(pcb.getIR()));
+                output += "   ";
+                output += this.pad3(TSOS.MemoryManager.decToHex(pcb.getAcc()));
+                output += "   ";
+                output += this.pad2(TSOS.MemoryManager.decToHex(pcb.getXReg()));
+                output += "   ";
+                output += this.pad2(TSOS.MemoryManager.decToHex(pcb.getYReg()));
+                output += "   ";
+                output += this.pad2(TSOS.MemoryManager.decToHex(pcb.getZFlag()));
+                output += "   ";
+                output += pcb.getState();
+            }
+            document.getElementById("taPCBDisplay").innerHTML = output;
+        };
+
         CPUScheduler.prototype.pad3 = function (text) {
             if (text.length == 0) {
-                _StdOut.putText("   ");
+                return "   ";
             } else if (text.length == 1) {
-                _StdOut.putText("  ");
+                return "  " + text;
             } else if (text.length == 2) {
-                _StdOut.putText(" ");
+                return " " + text;
             }
             return text;
         };
 
         CPUScheduler.prototype.pad2 = function (text) {
             if (text.length == 0) {
-                _StdOut.putText("  ");
+                return "  ";
             } else if (text.length == 1) {
-                _StdOut.putText(" ");
+                return " " + text;
             }
             return text;
         };
