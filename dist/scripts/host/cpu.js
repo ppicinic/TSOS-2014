@@ -100,6 +100,7 @@ var TSOS;
                 if (this.pcb.isFinished(this.PC)) {
                     this.pcb = null;
                     this.isExecuting = false;
+                    this.cycle();
                 }
             }
             //            if(this.isExecuting){
