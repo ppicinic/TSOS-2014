@@ -143,29 +143,32 @@ var TSOS;
                     this.Acc = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     break;
+
                 case 173:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Acc = _Memory.getMemoryBlock(val);
+                    this.Acc = _Memory.getMemoryBlock(val + this.base);
                     break;
+
                 case 141:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    _MemoryManager.setMemoryBlock(val, this.Acc);
+                    _MemoryManager.setMemoryBlock(val + this.base, this.Acc);
                     break;
+
                 case 109:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
+                    var value = _Memory.getMemoryBlock(val + this.base);
                     this.Acc += value;
                     if (this.Acc > 255) {
                         this.Acc = 255;
@@ -179,33 +182,37 @@ var TSOS;
                     this.Yreg = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     break;
+
                 case 174:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Xreg = _Memory.getMemoryBlock(val);
+                    this.Xreg = _Memory.getMemoryBlock(val + this.base);
                     break;
+
                 case 172:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Yreg = _Memory.getMemoryBlock(val);
+                    this.Yreg = _Memory.getMemoryBlock(val + this.base);
                     break;
                 case 234:
                     break;
+
                 case 236:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
-                    console.log(val);
-                    console.log(value);
+                    var value = _Memory.getMemoryBlock(val + this.base);
+
+                    //                    console.log(val);
+                    //                    console.log(value);
                     if (value == this.Xreg) {
                         this.Zflag = 255;
                     } else {
@@ -221,22 +228,22 @@ var TSOS;
                             this.PC -= 256;
                         }
                     } else {
-                        console.log("nobranch");
                         this.PC++;
                     }
                     break;
+
                 case 238:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
+                    var value = _Memory.getMemoryBlock(val + this.base);
                     value++;
                     if (value > 255) {
                         value = 255;
                     }
-                    _MemoryManager.setMemoryBlock(val, value);
+                    _MemoryManager.setMemoryBlock(val + this.base, value);
                     break;
                 case 0:
                     break;
@@ -257,7 +264,7 @@ var TSOS;
                     break;
                 case 2:
                     //                    console.log("happens");
-                    var i = this.Yreg;
+                    var i = this.Yreg + this.base;
                     var x = _Memory.getMemoryBlock(i);
                     var output = "";
                     i++;
