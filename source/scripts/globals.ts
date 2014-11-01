@@ -57,6 +57,8 @@ var _StdOut = null;
 var _Console: TSOS.Console;
 var _OsShell: TSOS.Shell;
 
+var _CPUScheduler : TSOS.CPUScheduler;
+
 var _SingleStep: boolean = false;
 
 var _ProcessManager : TSOS.ProcessManager;

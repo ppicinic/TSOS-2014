@@ -407,8 +407,9 @@ module TSOS {
         }
 
         public shellRun = function(args){
-            var pcb : ProcessControlBlock = _ProcessManager.getPcb(args[0]);
-            _CPU.setPcb(pcb);
+            if(_ProcessManager.contains(args[0])){
+                _CPUScheduler.add(_ProcessManager.getPcb(args[0]));
+            }
         }
 
         public shellClearMem = function(args){

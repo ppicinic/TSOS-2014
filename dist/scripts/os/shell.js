@@ -66,8 +66,9 @@ var TSOS;
                 }
             };
             this.shellRun = function (args) {
-                var pcb = _ProcessManager.getPcb(args[0]);
-                _CPU.setPcb(pcb);
+                if (_ProcessManager.contains(args[0])) {
+                    _CPUScheduler.add(_ProcessManager.getPcb(args[0]));
+                }
             };
             this.shellClearMem = function (args) {
                 _MemoryManager.clearMem();

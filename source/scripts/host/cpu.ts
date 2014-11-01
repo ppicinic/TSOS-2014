@@ -59,23 +59,63 @@ module TSOS {
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
-            if(this.isExecuting){
-                if(this.pcb != null){
-                    // do next command
-                    var command = this.pcb.getBlock(this.PC);
-                    this.PC++;
-                    this.doCommand(command);
-                    this.IR = command;
-                    this.updateDisplay()
+            var choice = _CPUScheduler.cycle(this.isExecuting);
+            console.log("cycle: " + choice);
+            if(choice == 1){
+                this.pcb = _CPUScheduler.next();
+                this.PC = this.pcb.getPC();
+                this.Acc = this.pcb.getAcc();
+                this.Xreg = this.pcb.getXReg();
+                this.Yreg = this.pcb.getYReg();
+                this.Zflag = this.pcb.getZFlag();
+                this.base = this.pcb.start;
+                this.limit = this.base + 255;
+                this.isExecuting = true;
+                this.updateDisplay();
+            }else if(choice == 2){
+                this.pcb.dumpRegisters(this.PC, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+                _CPUScheduler.add(this.pcb);
+                this.pcb = _CPUScheduler.next();
+                this.PC = this.pcb.getPC();
+                this.Acc = this.pcb.getAcc();
+                this.Xreg = this.pcb.getXReg();
+                this.Yreg = this.pcb.getYReg();
+                this.Zflag = this.pcb.getZFlag();
+                this.base = this.pcb.start;
+                this.limit = this.base + 255;
+                this.isExecuting = true;
+                this.updateDisplay();
+            }else if(choice == 3){
+                var command = this.pcb.getBlock(this.PC);
+                this.PC++;
+                this.doCommand(command);
+                this.IR = command;
+                this.updateDisplay()
 
 
 //                    _Console.putText("t");
-                    if(this.pcb.isFinished(this.PC)){
-                        this.pcb = null;
-                        this.isExecuting = false;
-                    }
+                if(this.pcb.isFinished(this.PC)){
+                    this.pcb = null;
+                    this.isExecuting = false;
                 }
             }
+//            if(this.isExecuting){
+//                if(this.pcb != null){
+//                    // do next command
+//                    var command = this.pcb.getBlock(this.PC);
+//                    this.PC++;
+//                    this.doCommand(command);
+//                    this.IR = command;
+//                    this.updateDisplay()
+//
+//
+////                    _Console.putText("t");
+//                    if(this.pcb.isFinished(this.PC)){
+//                        this.pcb = null;
+//                        this.isExecuting = false;
+//                    }
+//                }
+//            }
         }
 
         /**

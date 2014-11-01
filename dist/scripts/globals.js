@@ -53,6 +53,8 @@ var _StdOut = null;
 var _Console;
 var _OsShell;
 
+var _CPUScheduler;
+
 var _SingleStep = false;
 
 var _ProcessManager;

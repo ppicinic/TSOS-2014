@@ -92,6 +92,9 @@ var TSOS;
             _Memory = new TSOS.Memory();
             _Memory.init();
 
+            _CPUScheduler = new TSOS.CPUScheduler();
+            _CPUScheduler.init();
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
 
