@@ -120,7 +120,7 @@ module TSOS {
         }
 
         public static singleStep(): void{
-            if(_SingleStep && _CPU.isExecuting) {
+            if(_SingleStep && (_CPU.isExecuting || !_CPUScheduler.isEmpty())) {
                 _CPU.cycle();
             }
         }

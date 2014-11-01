@@ -45,9 +45,6 @@ var TSOS;
             for (var i = 0; i < pcbs.length; i++) {
                 this.readyQueue.push(pcbs[i]);
             }
-            if (!_CPU.isExecuting) {
-                _CPU.cycle();
-            }
         };
 
         CPUScheduler.prototype.kill = function (id) {
@@ -74,9 +71,6 @@ var TSOS;
 
         CPUScheduler.prototype.add = function (pcb) {
             this.readyQueue.push(pcb);
-            if (!_CPU.isExecuting) {
-                _CPU.cycle();
-            }
         };
         return CPUScheduler;
     })();

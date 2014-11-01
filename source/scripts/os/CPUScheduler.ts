@@ -47,9 +47,6 @@ module TSOS {
             for(var i = 0; i < pcbs.length; i++) {
                 this.readyQueue.push(pcbs[i]);
             }
-            if(!_CPU.isExecuting){
-                _CPU.cycle();
-            }
         }
 
         public kill(id : number) : void {
@@ -76,9 +73,6 @@ module TSOS {
 
         public add(pcb : ProcessControlBlock){
             this.readyQueue.push(pcb);
-            if(!_CPU.isExecuting){
-                _CPU.cycle();
-            }
         }
     }
 }

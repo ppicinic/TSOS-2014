@@ -56,12 +56,13 @@ module TSOS {
         }
 
         public cycle(): void {
-            _Kernel.krnTrace('CPU cycle');
+
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
             var choice = _CPUScheduler.cycle(this.isExecuting);
-            console.log("cycle: " + choice);
+//            console.log("cycle: " + choice);
             if(choice == 1){
+                _Kernel.krnTrace('Context Switch');
                 this.pcb = _CPUScheduler.next();
                 this.PC = this.pcb.getPC();
                 this.Acc = this.pcb.getAcc();
@@ -73,6 +74,7 @@ module TSOS {
                 this.isExecuting = true;
                 this.updateDisplay();
             }else if(choice == 2){
+                _Kernel.krnTrace('Context Switch');
                 this.pcb.dumpRegisters(this.PC, this.Acc, this.Xreg, this.Yreg, this.Zflag);
                 _CPUScheduler.add(this.pcb);
                 this.pcb = _CPUScheduler.next();
@@ -86,6 +88,7 @@ module TSOS {
                 this.isExecuting = true;
                 this.updateDisplay();
             }else if(choice == 3){
+                _Kernel.krnTrace('CPU cycle');
                 var command = this.pcb.getBlock(this.PC);
                 this.PC++;
                 this.doCommand(command);
@@ -139,9 +142,6 @@ module TSOS {
 //                console.log("happens");
                 this.isExecuting = false;
                 this.pcb = null;
-                if(!_CPUScheduler.isEmpty()){
-                    this.cycle();
-                }
             }
         }
         /**
