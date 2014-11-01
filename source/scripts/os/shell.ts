@@ -119,6 +119,9 @@ module TSOS {
             sc = new ShellCommand(this.shellKill, "kill", "<pid> - kills the specified process.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellPs, "ps", "Displays all processes");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -417,7 +420,7 @@ module TSOS {
 
         public shellRun = function(args){
             if(_ProcessManager.contains(args[0])){
-                _CPUScheduler.add(_ProcessManager.getPcb(args[0]));
+                _CPUScheduler.addNew(_ProcessManager.getPcb(args[0]));
             }
         }
 
@@ -435,6 +438,10 @@ module TSOS {
 
         public shellKill = function(args){
             _CPUScheduler.kill(args[0]);
+        }
+
+        public shellPs = function(args){
+            _CPUScheduler.display();
         }
 
         // changes the status of the OS status bar

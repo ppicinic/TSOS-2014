@@ -94,10 +94,11 @@ module TSOS {
                 this.doCommand(command);
                 this.IR = command;
                 this.updateDisplay();
-
+                this.pcb.dumpRegisters(this.PC, this.Acc, this.Xreg, this.Yreg, this.Zflag);
 
 //                    _Console.putText("t");
                 if(this.pcb.isFinished(this.PC)){
+                    _CPUScheduler.finish(this.pcb.getPID());
                     this.pcb = null;
                     this.isExecuting = false;
                     this.cycle();

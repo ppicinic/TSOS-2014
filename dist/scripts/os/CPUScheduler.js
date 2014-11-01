@@ -1,12 +1,14 @@
 var TSOS;
 (function (TSOS) {
     var CPUScheduler = (function () {
-        function CPUScheduler(readyQueue, mode, quantum, tick) {
+        function CPUScheduler(readyQueue, displayQueue, mode, quantum, tick) {
             if (typeof readyQueue === "undefined") { readyQueue = []; }
+            if (typeof displayQueue === "undefined") { displayQueue = []; }
             if (typeof mode === "undefined") { mode = 0; }
             if (typeof quantum === "undefined") { quantum = 6; }
             if (typeof tick === "undefined") { tick = 0; }
             this.readyQueue = readyQueue;
+            this.displayQueue = displayQueue;
             this.mode = mode;
             this.quantum = quantum;
             this.tick = tick;
@@ -44,6 +46,7 @@ var TSOS;
         CPUScheduler.prototype.addAll = function (pcbs) {
             for (var i = 0; i < pcbs.length; i++) {
                 this.readyQueue.push(pcbs[i]);
+                this.displayQueue.push(pcbs[i]);
             }
         };
 
@@ -60,6 +63,23 @@ var TSOS;
             } else {
                 this.readyQueue.splice(x, 1);
             }
+            var y = -1;
+            for (var i = 0; i < this.displayQueue.length; i++) {
+                if (this.displayQueue[i].getPID() == id) {
+                    y = i;
+                }
+            }
+            this.displayQueue.splice(y, 1);
+        };
+
+        CPUScheduler.prototype.finish = function (id) {
+            var x = -1;
+            for (var i = 0; i < this.displayQueue.length; i++) {
+                if (this.displayQueue[i].getPID() == id) {
+                    x = i;
+                }
+            }
+            this.displayQueue.splice(x, 1);
         };
 
         CPUScheduler.prototype.isEmpty = function () {
@@ -71,6 +91,50 @@ var TSOS;
 
         CPUScheduler.prototype.add = function (pcb) {
             this.readyQueue.push(pcb);
+        };
+
+        CPUScheduler.prototype.addNew = function (pcb) {
+            this.readyQueue.push(pcb);
+            this.displayQueue.push(pcb);
+        };
+
+        CPUScheduler.prototype.display = function () {
+            _StdOut.putText("PID    PC   ACC    X    Y     Z");
+            for (var i = 0; i < this.displayQueue.length; i++) {
+                _StdOut.advanceLine();
+                var pcb = this.displayQueue[i];
+                _StdOut.putText(this.pad3(pcb.getPID().toString()));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad3(TSOS.MemoryManager.decToHex2(pcb.getPC())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad3(TSOS.MemoryManager.decToHex(pcb.getAcc())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad2(TSOS.MemoryManager.decToHex(pcb.getXReg())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad2(TSOS.MemoryManager.decToHex(pcb.getYReg())));
+                _StdOut.putText("   ");
+                _StdOut.putText(this.pad2(TSOS.MemoryManager.decToHex(pcb.getZFlag())));
+            }
+        };
+
+        CPUScheduler.prototype.pad3 = function (text) {
+            if (text.length == 0) {
+                _StdOut.putText("   ");
+            } else if (text.length == 1) {
+                _StdOut.putText("  ");
+            } else if (text.length == 2) {
+                _StdOut.putText(" ");
+            }
+            return text;
+        };
+
+        CPUScheduler.prototype.pad2 = function (text) {
+            if (text.length == 0) {
+                _StdOut.putText("  ");
+            } else if (text.length == 1) {
+                _StdOut.putText(" ");
+            }
+            return text;
         };
         return CPUScheduler;
     })();
