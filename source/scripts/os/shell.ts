@@ -107,6 +107,9 @@ module TSOS {
             sc = new ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -406,6 +409,10 @@ module TSOS {
         public shellRun = function(args){
             var pcb : ProcessControlBlock = _ProcessManager.getPcb(args[0]);
             _CPU.setPcb(pcb);
+        }
+
+        public shellClearMem = function(args){
+            _MemoryManager.clearMem();
         }
 
         // changes the status of the OS status bar

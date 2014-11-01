@@ -171,6 +171,13 @@ var TSOS;
             //            var d = _Memory.getMemoryBlock(b);
             //            cell.innerHTML = MemoryManager.transform(c) + MemoryManager.transform(d);
         };
+
+        MemoryManager.prototype.clearMem = function () {
+            for (var i = 0; i < 768; i++) {
+                _Memory.setMemoryBlock(i, 0);
+                this.updateControl(i);
+            }
+        };
         return MemoryManager;
     })();
     TSOS.MemoryManager = MemoryManager;

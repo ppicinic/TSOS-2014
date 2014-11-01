@@ -69,6 +69,9 @@ var TSOS;
                 var pcb = _ProcessManager.getPcb(args[0]);
                 _CPU.setPcb(pcb);
             };
+            this.shellClearMem = function (args) {
+                _MemoryManager.clearMem();
+            };
             // changes the status of the OS status bar
             this.shellStatus = function (args) {
                 var element = document.getElementById('taStatusBarStatus');
@@ -133,6 +136,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

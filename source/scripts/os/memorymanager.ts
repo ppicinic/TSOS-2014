@@ -173,5 +173,12 @@ module TSOS {
 //            var d = _Memory.getMemoryBlock(b);
 //            cell.innerHTML = MemoryManager.transform(c) + MemoryManager.transform(d);
         }
+
+        public clearMem(){
+            for(var i = 0; i < 768; i++){
+                _Memory.setMemoryBlock(i, 0);
+                this.updateControl(i);
+            }
+        }
     }
 }
