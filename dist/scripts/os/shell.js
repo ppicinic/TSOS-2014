@@ -57,8 +57,8 @@ var TSOS;
                     result = false;
                 }
                 if (result) {
-                    _MemoryManager.loadMemory(memoryString);
-                    var pcb = new TSOS.ProcessControlBlock(0, memoryString.length / 2);
+                    var pos = _MemoryManager.loadMemory(memoryString);
+                    var pcb = new TSOS.ProcessControlBlock(pos, memoryString.length / 2);
                     var i = _ProcessManager.add(pcb);
                     _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {

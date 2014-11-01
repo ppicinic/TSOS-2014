@@ -24,6 +24,10 @@ var TSOS;
             return _MemoryManager.getMemoryBlock(pos);
         };
 
+        ProcessControlBlock.prototype.getStart = function () {
+            return this.start;
+        };
+
         /**
         * Tells if the program is at the end
         * @param pos the position the cpu is at

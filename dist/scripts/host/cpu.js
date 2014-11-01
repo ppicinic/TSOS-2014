@@ -171,7 +171,7 @@ var TSOS;
                     if (this.Zflag == 0) {
                         this.PC += val;
                         console.log(val);
-                        if (this.PC > 256) {
+                        if (this.PC > this.pcb.getStart() + 256) {
                             this.PC -= 256;
                         }
                     } else {
