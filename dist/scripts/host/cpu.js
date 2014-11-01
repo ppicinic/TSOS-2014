@@ -13,13 +13,15 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
-        function Cpu(PC, IR, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
+        function Cpu(PC, IR, Acc, Xreg, Yreg, Zflag, base, limit, isExecuting, pcb) {
             if (typeof PC === "undefined") { PC = 0; }
             if (typeof IR === "undefined") { IR = 0; }
             if (typeof Acc === "undefined") { Acc = 0; }
             if (typeof Xreg === "undefined") { Xreg = 0; }
             if (typeof Yreg === "undefined") { Yreg = 0; }
             if (typeof Zflag === "undefined") { Zflag = 0; }
+            if (typeof base === "undefined") { base = 0; }
+            if (typeof limit === "undefined") { limit = 0; }
             if (typeof isExecuting === "undefined") { isExecuting = false; }
             if (typeof pcb === "undefined") { pcb = null; }
             this.PC = PC;
@@ -28,6 +30,8 @@ var TSOS;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
+            this.base = base;
+            this.limit = limit;
             this.isExecuting = isExecuting;
             this.pcb = pcb;
         }
@@ -48,6 +52,8 @@ var TSOS;
         Cpu.prototype.setPcb = function (newPcb) {
             this.pcb = newPcb;
             this.PC = this.pcb.start;
+            this.base = this.pcb.start;
+            this.limit = this.base + 255;
             this.isExecuting = true;
             this.updateDisplay();
         };

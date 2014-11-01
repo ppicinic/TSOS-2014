@@ -25,6 +25,8 @@ module TSOS {
                     public Xreg: number = 0,
                     public Yreg: number = 0,
                     public Zflag: number = 0,
+                    public base: number = 0,
+                    public limit: number = 0,
                     public isExecuting: boolean = false,
                     public pcb : ProcessControlBlock = null) {
 
@@ -47,6 +49,8 @@ module TSOS {
         public setPcb(newPcb : ProcessControlBlock){
             this.pcb = newPcb;
             this.PC = this.pcb.start;
+            this.base = this.pcb.start;
+            this.limit = this.base + 255;
             this.isExecuting = true;
             this.updateDisplay();
         }
