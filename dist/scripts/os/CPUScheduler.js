@@ -50,6 +50,21 @@ var TSOS;
             }
         };
 
+        CPUScheduler.prototype.kill = function (id) {
+            var x = -1;
+            for (var i = 0; i < this.readyQueue.length; i++) {
+                if (this.readyQueue[i].getPID() == id) {
+                    x = i;
+                }
+            }
+            if (x == -1) {
+                //check CPU
+                _CPU.kill(id);
+            } else {
+                this.readyQueue.splice(x, 1);
+            }
+        };
+
         CPUScheduler.prototype.isEmpty = function () {
             return this.readyQueue.length == 0;
         };

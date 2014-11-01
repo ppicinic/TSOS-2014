@@ -134,6 +134,20 @@ var TSOS;
             document.getElementById("taZFlag").innerHTML = TSOS.MemoryManager.decToHex(this.Zflag);
         };
 
+        Cpu.prototype.kill = function (id) {
+            if (this.pcb.getPID() == id) {
+                //                while(!this.pcb.isFinished(this.PC)){
+                //                    this.PC++;
+                //                }
+                console.log("happens");
+                this.isExecuting = false;
+                this.pcb = null;
+                if (!_CPUScheduler.isEmpty()) {
+                    this.cycle();
+                }
+            }
+        };
+
         /**
         * Handles an opcode and does necessary operations
         * @param command the opcode to execute.
