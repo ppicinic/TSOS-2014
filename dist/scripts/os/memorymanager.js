@@ -55,6 +55,16 @@ var TSOS;
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
         };
 
+        MemoryManager.decToHex2 = function (i) {
+            var x = Math.floor(i / 256);
+            var y = Math.floor((i - (x * 256)) / 16);
+            var z = Math.floor((i - (x * 256) - (y * 16)));
+            console.log(x);
+            console.log(y);
+            console.log(z);
+            return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
+        };
+
         /**
         * Converts decimal to hex
         * Should be moved to utils?

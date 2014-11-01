@@ -56,6 +56,16 @@ module TSOS {
             var y = Math.floor((i - (x * 16)));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
         }
+
+        public static decToHex2(i : number): string{
+            var x = Math.floor(i / 256);
+            var y = Math.floor((i - (x * 256)) / 16)
+            var z = Math.floor((i - (x * 256) - (y * 16)));
+            console.log(x);
+            console.log(y);
+            console.log(z);
+            return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
+        }
         /**
          * Converts decimal to hex
          * Should be moved to utils?

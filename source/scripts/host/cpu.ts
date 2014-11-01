@@ -78,7 +78,7 @@ module TSOS {
          * Updates the host display
          */
         private updateDisplay() : void{
-            document.getElementById("taPC").innerHTML = MemoryManager.decToHex(this.PC);
+            document.getElementById("taPC").innerHTML = MemoryManager.decToHex2(this.PC);
             document.getElementById("taIR").innerHTML = MemoryManager.decToHex(this.IR);
             document.getElementById("taAcc").innerHTML = MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = MemoryManager.decToHex(this.Xreg);

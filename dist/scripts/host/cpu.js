@@ -79,7 +79,7 @@ var TSOS;
         * Updates the host display
         */
         Cpu.prototype.updateDisplay = function () {
-            document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
+            document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex2(this.PC);
             document.getElementById("taIR").innerHTML = TSOS.MemoryManager.decToHex(this.IR);
             document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
