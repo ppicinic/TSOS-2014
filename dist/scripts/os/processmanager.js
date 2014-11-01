@@ -38,6 +38,12 @@ var TSOS;
         * @param i the id of the pcb
         * @returns {*} the pcb
         */
+        ProcessManager.prototype.getAll = function () {
+            var result = this.processes;
+            this.processes = new Array();
+            return result;
+        };
+
         ProcessManager.prototype.getPcb = function (id) {
             for (var i = 0; i < this.processes.length; i++) {
                 if (this.processes[i].getPID() == id) {

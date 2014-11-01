@@ -41,6 +41,15 @@ var TSOS;
             this.quantum = quant;
         };
 
+        CPUScheduler.prototype.addAll = function (pcbs) {
+            for (var i = 0; i < pcbs.length; i++) {
+                this.readyQueue.push(pcbs[i]);
+            }
+            if (!_CPU.isExecuting) {
+                _CPU.cycle();
+            }
+        };
+
         CPUScheduler.prototype.isEmpty = function () {
             return this.readyQueue.length == 0;
         };

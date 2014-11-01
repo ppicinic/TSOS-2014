@@ -110,6 +110,9 @@ module TSOS {
             sc = new ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellRunAll, "runall", "- Runs all active processes.");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -410,6 +413,10 @@ module TSOS {
             if(_ProcessManager.contains(args[0])){
                 _CPUScheduler.add(_ProcessManager.getPcb(args[0]));
             }
+        }
+
+        public shellRunAll = function(args){
+            _CPUScheduler.addAll(_ProcessManager.getAll())
         }
 
         public shellClearMem = function(args){

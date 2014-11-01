@@ -37,6 +37,12 @@ module TSOS {
          * @param i the id of the pcb
          * @returns {*} the pcb
          */
+        public getAll() : ProcessControlBlock[]{
+            var result = this.processes;
+            this.processes = new Array();
+            return result;
+        }
+
         public getPcb(id: number):ProcessControlBlock{
             for(var i = 0; i < this.processes.length; i++){
                 if(this.processes[i].getPID() == id){

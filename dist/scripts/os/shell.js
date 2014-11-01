@@ -70,6 +70,9 @@ var TSOS;
                     _CPUScheduler.add(_ProcessManager.getPcb(args[0]));
                 }
             };
+            this.shellRunAll = function (args) {
+                _CPUScheduler.addAll(_ProcessManager.getAll());
+            };
             this.shellClearMem = function (args) {
                 _MemoryManager.clearMem();
             };
@@ -140,6 +143,9 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRunAll, "runall", "- Runs all active processes.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

@@ -43,6 +43,15 @@ module TSOS {
             this.quantum = quant;
         }
 
+        public addAll(pcbs : ProcessControlBlock[]){
+            for(var i = 0; i < pcbs.length; i++) {
+                this.readyQueue.push(pcbs[i]);
+            }
+            if(!_CPU.isExecuting){
+                _CPU.cycle();
+            }
+        }
+
         public isEmpty(): boolean{
             return this.readyQueue.length == 0;
         }
