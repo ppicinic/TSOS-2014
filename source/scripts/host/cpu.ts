@@ -167,6 +167,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     this.Acc = _Memory.getMemoryBlock(val + this.base);
                     break;
                 // 8D
@@ -176,6 +179,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     _MemoryManager.setMemoryBlock(val + this.base, this.Acc);
                     break;
                 // 6D
@@ -185,6 +191,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     var value = _Memory.getMemoryBlock(val + this.base);
                     this.Acc += value;
                     if(this.Acc > 255){
@@ -206,6 +215,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     this.Xreg = _Memory.getMemoryBlock(val + this.base);
                     break;
                 // AC
@@ -215,6 +227,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     this.Yreg = _Memory.getMemoryBlock(val + this.base);
                     break;
                 case 234:
@@ -226,6 +241,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     var value = _Memory.getMemoryBlock(val + this.base);
 //                    console.log(val);
 //                    console.log(value);
@@ -239,7 +257,6 @@ module TSOS {
                     var val = _Memory.getMemoryBlock(this.PC);
                     if(this.Zflag == 0){
                         this.PC += val;
-                        console.log(val);
                         if(this.PC > this.pcb.getStart() + 256){
                             this.PC -= 256;
                         }
@@ -254,6 +271,9 @@ module TSOS {
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
+                    if(val + this.base > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     var value = _Memory.getMemoryBlock(val + this.base);
                     value++;
                     if(value > 255){
@@ -281,6 +301,9 @@ module TSOS {
                 case 2:
 //                    console.log("happens");
                     var i = this.Yreg + this.base;
+                    if(i > this.limit){
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     var x = _Memory.getMemoryBlock(i);
                     var output = "";
                     i++;

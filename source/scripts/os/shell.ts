@@ -408,11 +408,15 @@ module TSOS {
             if(program.length == 0 || memoryString.length % 2 != 0){
                 result = false;
             }
-            if(result){
+            if(result) {
                 var pos = _MemoryManager.loadMemory(memoryString);
-                var pcb : ProcessControlBlock = new ProcessControlBlock(pos, memoryString.length / 2);
-                var i = _ProcessManager.add(pcb);
-                _StdOut.putText("Program loaded with PID " + i + ".");
+                if (pos != -1) {
+                    var pcb:ProcessControlBlock = new ProcessControlBlock(pos, memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
+                    _StdOut.putText("Program loaded with PID " + i + ".");
+                }else {
+                    _StdOut.putText("Program cannot be loaded while programs are running.");
+                }
             }else{
                 _StdOut.putText("Program is invalid.")
             }

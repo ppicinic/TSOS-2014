@@ -19,9 +19,12 @@ var TSOS;
         * @returns {number} the id of the pcb
         */
         ProcessManager.prototype.add = function (pcb) {
-            pcb.setPID(this.newPid++);
-            this.processes[this.processes.length] = pcb;
-            return pcb.getPID();
+            if (_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+                pcb.setPID(this.newPid++);
+                this.processes[this.processes.length] = pcb;
+                return pcb.getPID();
+            }
+            return null;
         };
 
         ProcessManager.prototype.contains = function (id) {

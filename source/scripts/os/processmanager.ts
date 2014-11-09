@@ -19,9 +19,12 @@ module TSOS {
          * @returns {number} the id of the pcb
          */
         public add(pcb : ProcessControlBlock): number{
-            pcb.setPID(this.newPid++);
-            this.processes[this.processes.length] = pcb;
-            return pcb.getPID();
+            if(_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+                pcb.setPID(this.newPid++);
+                this.processes[this.processes.length] = pcb;
+                return pcb.getPID();
+            }
+            return null;
         }
 
         public contains(id : number) : boolean {
