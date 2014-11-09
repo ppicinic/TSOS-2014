@@ -75,6 +75,11 @@ module TSOS {
             this.displayQueue.splice(y, 1);
         }
 
+        public shutDown() : void {
+            this.readyQueue.splice(0, this.readyQueue.length);
+            _CPU.shutDown();
+        }
+
         public finish(id : number){
             var x = -1;
             for(var i = 0; i < this.displayQueue.length; i++){

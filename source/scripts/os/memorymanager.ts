@@ -18,7 +18,7 @@ module TSOS {
             this.memoryTable = <HTMLTableElement> document.getElementById("memory");
 //            this.memoryTable.insertRow()
 //            this.memoryTable.rows.item(0).
-            console.log("init memory");
+//            console.log("init memory");
             for(var i = 0; i < 96; i++){
                 this.memoryTable.insertRow();
             }
@@ -61,9 +61,9 @@ module TSOS {
             var x = Math.floor(i / 256);
             var y = Math.floor((i - (x * 256)) / 16)
             var z = Math.floor((i - (x * 256) - (y * 16)));
-            console.log(x);
-            console.log(y);
-            console.log(z);
+//            console.log(x);
+//            console.log(y);
+//            console.log(z);
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
         }
         /**

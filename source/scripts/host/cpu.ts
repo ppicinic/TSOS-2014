@@ -180,6 +180,7 @@ module TSOS {
                     this.PC++;
                     var val = (valB * 256) + valA;
                     if(val + this.base > this.limit){
+                        console.log("happens");
                         _Kernel.krnTrapError("Program exceeded memory boundary.");
                     }
                     _MemoryManager.setMemoryBlock(val + this.base, this.Acc);
@@ -318,6 +319,13 @@ module TSOS {
                     }
                     _StdOut.putText(output);
                     break;
+            }
+        }
+
+        public shutDown() : void {
+            if(this.pcb != null){
+                this.isExecuting = false;
+                this.pcb = null;
             }
         }
     }

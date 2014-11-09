@@ -65,6 +65,7 @@ module TSOS {
             this.krnTrace("begin shutdown OS");
             // TODO: Check for running processes.  Alert if there are some, alert and stop.  Else...
             // ... Disable the Interrupts.
+
             this.krnTrace("Disabling the interrupts.");
             this.krnDisableInterrupts();
             //
@@ -173,6 +174,7 @@ module TSOS {
         }
 
         public krnTrapError(msg) {
+            console.log(msg);
             Control.hostLog("OS ERROR - TRAP: " + msg);
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)
             var element:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("display");

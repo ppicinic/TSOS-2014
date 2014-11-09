@@ -73,6 +73,11 @@ var TSOS;
             this.displayQueue.splice(y, 1);
         };
 
+        CPUScheduler.prototype.shutDown = function () {
+            this.readyQueue.splice(0, this.readyQueue.length);
+            _CPU.shutDown();
+        };
+
         CPUScheduler.prototype.finish = function (id) {
             var x = -1;
             for (var i = 0; i < this.displayQueue.length; i++) {
