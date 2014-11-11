@@ -4,9 +4,11 @@
 var TSOS;
 (function (TSOS) {
     var ProcessManager = (function () {
-        function ProcessManager(processes) {
+        function ProcessManager(processes, newPid) {
             if (typeof processes === "undefined") { processes = new Array(); }
+            if (typeof newPid === "undefined") { newPid = 0; }
             this.processes = processes;
+            this.newPid = newPid;
         }
         ProcessManager.prototype.init = function () {
         };
@@ -17,8 +19,21 @@ var TSOS;
         * @returns {number} the id of the pcb
         */
         ProcessManager.prototype.add = function (pcb) {
-            this.processes[this.processes.length] = pcb;
-            return this.processes.length - 1;
+            if (_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+                pcb.setPID(this.newPid++);
+                this.processes[this.processes.length] = pcb;
+                return pcb.getPID();
+            }
+            return null;
+        };
+
+        ProcessManager.prototype.contains = function (id) {
+            for (var i = 0; i < this.processes.length; i++) {
+                if (this.processes[i].getPID() == id) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         /**
@@ -26,9 +41,19 @@ var TSOS;
         * @param i the id of the pcb
         * @returns {*} the pcb
         */
-        ProcessManager.prototype.getPcb = function (i) {
-            if (i >= this.processes.length) {
-                return null;
+        ProcessManager.prototype.getAll = function () {
+            var result = this.processes;
+            this.processes = new Array();
+            return result;
+        };
+
+        ProcessManager.prototype.getPcb = function (id) {
+            for (var i = 0; i < this.processes.length; i++) {
+                if (this.processes[i].getPID() == id) {
+                    var pcb = this.processes[i];
+                    this.processes.splice(i, 1);
+                    return pcb;
+                }
             }
             return this.processes[i];
         };

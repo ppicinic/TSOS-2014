@@ -6,7 +6,7 @@ module TSOS {
 
     export class MemoryManager{
 
-        constructor(public memoryTable : HTMLTableElement = null){
+        constructor(public memoryTable : HTMLTableElement = null, public loadPos : number = 0){
 
         }
 
@@ -14,10 +14,11 @@ module TSOS {
          * Initializes memory manager and the host display
          */
         public init() : void {
+            this.loadPos = 0;
             this.memoryTable = <HTMLTableElement> document.getElementById("memory");
 //            this.memoryTable.insertRow()
 //            this.memoryTable.rows.item(0).
-            console.log("init memory");
+//            console.log("init memory");
             for(var i = 0; i < 96; i++){
                 this.memoryTable.insertRow();
             }
@@ -54,6 +55,16 @@ module TSOS {
             var x = Math.floor(i / 16);
             var y = Math.floor((i - (x * 16)));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
+        }
+
+        public static decToHex2(i : number): string{
+            var x = Math.floor(i / 256);
+            var y = Math.floor((i - (x * 256)) / 16)
+            var z = Math.floor((i - (x * 256) - (y * 16)));
+//            console.log(x);
+//            console.log(y);
+//            console.log(z);
+            return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
         }
         /**
          * Converts decimal to hex
@@ -123,18 +134,25 @@ module TSOS {
          * Store a hex value in memory
          * @param hexValue the hex value
          */
-        public loadMemory(hexValue : string){
-            for(var i = 0; i < hexValue.length; i += 2){
-                var valA = hexValue.charAt(i);
-                var valB = hexValue.charAt(i + 1);
-                var a = MemoryManager.hexToDec(valA + valB);
-                _Memory.setMemoryBlock(i / 2, a);
-                this.updateControl(i / 2);
+        public loadMemory(hexValue : string) : number{
+            if(_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+                var pos = this.loadPos * 256;
+                for (var i = 0; i < hexValue.length; i += 2) {
+                    var valA = hexValue.charAt(i);
+                    var valB = hexValue.charAt(i + 1);
+                    var a = MemoryManager.hexToDec(valA + valB);
+                    _Memory.setMemoryBlock(((i / 2) + pos), a);
+                    this.updateControl((i / 2) + pos);
 //                var x = Math.floor(i / 16);
 //                var y = (i - (x * 16)) / 2;
 //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
 //                cell.innerHTML = valA + valB;
+                }
+                this.loadPos++;
+                this.loadPos = this.loadPos % 3;
+                return pos;
             }
+            return -1;
         }
 
         /**
@@ -172,6 +190,13 @@ module TSOS {
 //            var c = _Memory.getMemoryBlock(a);
 //            var d = _Memory.getMemoryBlock(b);
 //            cell.innerHTML = MemoryManager.transform(c) + MemoryManager.transform(d);
+        }
+
+        public clearMem(){
+            for(var i = 0; i < 768; i++){
+                _Memory.setMemoryBlock(i, 0);
+                this.updateControl(i);
+            }
         }
     }
 }

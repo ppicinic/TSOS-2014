@@ -97,6 +97,9 @@ module TSOS {
             _Memory = new Memory();
             _Memory.init();
 
+            _CPUScheduler = new CPUScheduler();
+            _CPUScheduler.init();
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
             // ... then set the host clock pulse ...
@@ -117,7 +120,7 @@ module TSOS {
         }
 
         public static singleStep(): void{
-            if(_SingleStep && _CPU.isExecuting) {
+            if(_SingleStep && (_CPU.isExecuting || !_CPUScheduler.isEmpty())) {
                 _CPU.cycle();
             }
         }

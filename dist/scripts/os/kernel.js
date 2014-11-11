@@ -85,7 +85,7 @@ var TSOS;
                 // TODO: Implement a priority queue based on the IRQ number/id to enforce interrupt priority.
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
-            } else if (_CPU.isExecuting && !_SingleStep) {
+            } else if ((_CPU.isExecuting || !_CPUScheduler.isEmpty()) && !_SingleStep) {
                 _CPU.cycle();
             } else {
                 this.krnTrace("Idle");
@@ -164,6 +164,7 @@ var TSOS;
         };
 
         Kernel.prototype.krnTrapError = function (msg) {
+            console.log(msg);
             TSOS.Control.hostLog("OS ERROR - TRAP: " + msg);
 
             // TODO: Display error on console, perhaps in some sort of colored screen. (Perhaps blue?)

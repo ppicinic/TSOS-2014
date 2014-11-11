@@ -92,6 +92,9 @@ var TSOS;
             _Memory = new TSOS.Memory();
             _Memory.init();
 
+            _CPUScheduler = new TSOS.CPUScheduler();
+            _CPUScheduler.init();
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
 
@@ -114,7 +117,7 @@ var TSOS;
         };
 
         Control.singleStep = function () {
-            if (_SingleStep && _CPU.isExecuting) {
+            if (_SingleStep && (_CPU.isExecuting || !_CPUScheduler.isEmpty())) {
                 _CPU.cycle();
             }
         };

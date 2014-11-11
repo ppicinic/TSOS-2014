@@ -57,17 +57,37 @@ var TSOS;
                     result = false;
                 }
                 if (result) {
-                    _MemoryManager.loadMemory(memoryString);
-                    var pcb = new TSOS.ProcessControlBlock(0, memoryString.length / 2);
-                    var i = _ProcessManager.add(pcb);
-                    _StdOut.putText("Program loaded with PID " + i + ".");
+                    var pos = _MemoryManager.loadMemory(memoryString);
+                    if (pos != -1) {
+                        var pcb = new TSOS.ProcessControlBlock(pos, memoryString.length / 2);
+                        var i = _ProcessManager.add(pcb);
+                        _StdOut.putText("Program loaded with PID " + i + ".");
+                    } else {
+                        _StdOut.putText("Program cannot be loaded while programs are running.");
+                    }
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
             };
             this.shellRun = function (args) {
-                var pcb = _ProcessManager.getPcb(args[0]);
-                _CPU.setPcb(pcb);
+                if (_ProcessManager.contains(args[0])) {
+                    _CPUScheduler.addNew(_ProcessManager.getPcb(args[0]));
+                }
+            };
+            this.shellRunAll = function (args) {
+                _CPUScheduler.addAll(_ProcessManager.getAll());
+            };
+            this.shellClearMem = function (args) {
+                _MemoryManager.clearMem();
+            };
+            this.shellQuantum = function (args) {
+                _CPUScheduler.setQuantum(args[0]);
+            };
+            this.shellKill = function (args) {
+                _CPUScheduler.kill(args[0]);
+            };
+            this.shellPs = function (args) {
+                _CPUScheduler.display();
             };
             // changes the status of the OS status bar
             this.shellStatus = function (args) {
@@ -133,6 +153,21 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRunAll, "runall", "- Runs all active processes.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<tick> - sets the quantum rate.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellKill, "kill", "<pid> - kills the specified process.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellPs, "ps", "Displays all processes");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

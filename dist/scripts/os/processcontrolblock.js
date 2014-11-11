@@ -5,14 +5,80 @@ var TSOS;
 (function (TSOS) {
     // stores information about a user program
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(start, length, end) {
+        function ProcessControlBlock(start, length, end, PC, IR, Acc, XReg, YReg, ZFlag, PID, state) {
             if (typeof end === "undefined") { end = 0; }
+            if (typeof PC === "undefined") { PC = 0; }
+            if (typeof IR === "undefined") { IR = 0; }
+            if (typeof Acc === "undefined") { Acc = 0; }
+            if (typeof XReg === "undefined") { XReg = 0; }
+            if (typeof YReg === "undefined") { YReg = 0; }
+            if (typeof ZFlag === "undefined") { ZFlag = 0; }
+            if (typeof PID === "undefined") { PID = 0; }
+            if (typeof state === "undefined") { state = "Waiting"; }
             this.start = start;
             this.length = length;
             this.end = end;
+            this.PC = PC;
+            this.IR = IR;
+            this.Acc = Acc;
+            this.XReg = XReg;
+            this.YReg = YReg;
+            this.ZFlag = ZFlag;
+            this.PID = PID;
+            this.state = state;
             this.end = this.start + this.length;
+            this.PC = this.start;
         }
         ProcessControlBlock.prototype.init = function () {
+        };
+
+        ProcessControlBlock.prototype.setPID = function (id) {
+            this.PID = id;
+        };
+
+        ProcessControlBlock.prototype.getPID = function () {
+            return this.PID;
+        };
+
+        ProcessControlBlock.prototype.setState = function (newState) {
+            this.state = newState;
+        };
+
+        ProcessControlBlock.prototype.getState = function () {
+            return this.state;
+        };
+
+        ProcessControlBlock.prototype.dumpRegisters = function (pc, ir, acc, x, y, z) {
+            this.PC = pc;
+            this.IR = ir;
+            this.Acc = acc;
+            this.XReg = x;
+            this.YReg = y;
+            this.ZFlag = z;
+        };
+
+        ProcessControlBlock.prototype.getIR = function () {
+            return this.IR;
+        };
+
+        ProcessControlBlock.prototype.getPC = function () {
+            return this.PC;
+        };
+
+        ProcessControlBlock.prototype.getAcc = function () {
+            return this.Acc;
+        };
+
+        ProcessControlBlock.prototype.getXReg = function () {
+            return this.XReg;
+        };
+
+        ProcessControlBlock.prototype.getYReg = function () {
+            return this.YReg;
+        };
+
+        ProcessControlBlock.prototype.getZFlag = function () {
+            return this.ZFlag;
         };
 
         /**
@@ -22,6 +88,10 @@ var TSOS;
         */
         ProcessControlBlock.prototype.getBlock = function (pos) {
             return _MemoryManager.getMemoryBlock(pos);
+        };
+
+        ProcessControlBlock.prototype.getStart = function () {
+            return this.start;
         };
 
         /**

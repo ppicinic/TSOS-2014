@@ -13,13 +13,15 @@ Operating System Concepts 8th edition by Silberschatz, Galvin, and Gagne.  ISBN 
 var TSOS;
 (function (TSOS) {
     var Cpu = (function () {
-        function Cpu(PC, IR, Acc, Xreg, Yreg, Zflag, isExecuting, pcb) {
+        function Cpu(PC, IR, Acc, Xreg, Yreg, Zflag, base, limit, isExecuting, pcb) {
             if (typeof PC === "undefined") { PC = 0; }
             if (typeof IR === "undefined") { IR = 0; }
             if (typeof Acc === "undefined") { Acc = 0; }
             if (typeof Xreg === "undefined") { Xreg = 0; }
             if (typeof Yreg === "undefined") { Yreg = 0; }
             if (typeof Zflag === "undefined") { Zflag = 0; }
+            if (typeof base === "undefined") { base = 0; }
+            if (typeof limit === "undefined") { limit = 0; }
             if (typeof isExecuting === "undefined") { isExecuting = false; }
             if (typeof pcb === "undefined") { pcb = null; }
             this.PC = PC;
@@ -28,6 +30,8 @@ var TSOS;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
+            this.base = base;
+            this.limit = limit;
             this.isExecuting = isExecuting;
             this.pcb = pcb;
         }
@@ -48,43 +52,105 @@ var TSOS;
         Cpu.prototype.setPcb = function (newPcb) {
             this.pcb = newPcb;
             this.PC = this.pcb.start;
+            this.base = this.pcb.start;
+            this.limit = this.base + 255;
             this.isExecuting = true;
             this.updateDisplay();
         };
 
         Cpu.prototype.cycle = function () {
-            _Kernel.krnTrace('CPU cycle');
-
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
-            if (this.isExecuting) {
-                if (this.pcb != null) {
-                    // do next command
-                    var command = this.pcb.getBlock(this.PC);
-                    this.PC++;
-                    this.doCommand(command);
-                    this.IR = command;
-                    this.updateDisplay();
+            var choice = _CPUScheduler.cycle(this.isExecuting);
 
-                    //                    _Console.putText("t");
-                    if (this.pcb.isFinished(this.PC)) {
-                        this.pcb = null;
-                        this.isExecuting = false;
-                    }
+            //            console.log("cycle: " + choice);
+            if (choice == 1) {
+                _Kernel.krnTrace('Context Switch');
+                this.pcb = _CPUScheduler.next();
+                this.pcb.setState("Running");
+                this.PC = this.pcb.getPC();
+                this.Acc = this.pcb.getAcc();
+                this.Xreg = this.pcb.getXReg();
+                this.Yreg = this.pcb.getYReg();
+                this.Zflag = this.pcb.getZFlag();
+                this.base = this.pcb.start;
+                this.limit = this.base + 255;
+                this.isExecuting = true;
+                this.updateDisplay();
+            } else if (choice == 2) {
+                _Kernel.krnTrace('Context Switch');
+                this.pcb.dumpRegisters(this.PC, this.IR, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+                this.pcb.setState("Waiting");
+                _CPUScheduler.add(this.pcb);
+                this.pcb = _CPUScheduler.next();
+                this.pcb.setState("Running");
+                this.PC = this.pcb.getPC();
+                this.Acc = this.pcb.getAcc();
+                this.Xreg = this.pcb.getXReg();
+                this.Yreg = this.pcb.getYReg();
+                this.Zflag = this.pcb.getZFlag();
+                this.base = this.pcb.start;
+                this.limit = this.base + 255;
+                this.isExecuting = true;
+                this.updateDisplay();
+            } else if (choice == 3) {
+                _Kernel.krnTrace('CPU cycle');
+                var command = this.pcb.getBlock(this.PC);
+                this.PC++;
+                this.doCommand(command);
+                this.IR = command;
+                this.updateDisplay();
+                this.pcb.dumpRegisters(this.PC, this.IR, this.Acc, this.Xreg, this.Yreg, this.Zflag);
+
+                //                    _Console.putText("t");
+                if (this.pcb.isFinished(this.PC)) {
+                    _CPUScheduler.finish(this.pcb.getPID());
+                    this.pcb.setState("Finished");
+                    this.pcb = null;
+                    this.isExecuting = false;
                 }
+                _CPUScheduler.updateDisplay();
             }
+            //            if(this.isExecuting){
+            //                if(this.pcb != null){
+            //                    // do next command
+            //                    var command = this.pcb.getBlock(this.PC);
+            //                    this.PC++;
+            //                    this.doCommand(command);
+            //                    this.IR = command;
+            //                    this.updateDisplay()
+            //
+            //
+            ////                    _Console.putText("t");
+            //                    if(this.pcb.isFinished(this.PC)){
+            //                        this.pcb = null;
+            //                        this.isExecuting = false;
+            //                    }
+            //                }
+            //            }
         };
 
         /**
         * Updates the host display
         */
         Cpu.prototype.updateDisplay = function () {
-            document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex(this.PC);
+            document.getElementById("taPC").innerHTML = TSOS.MemoryManager.decToHex2(this.PC);
             document.getElementById("taIR").innerHTML = TSOS.MemoryManager.decToHex(this.IR);
             document.getElementById("taAcc").innerHTML = TSOS.MemoryManager.decToHex(this.Acc);
             document.getElementById("taXReg").innerHTML = TSOS.MemoryManager.decToHex(this.Xreg);
             document.getElementById("taYReg").innerHTML = TSOS.MemoryManager.decToHex(this.Yreg);
             document.getElementById("taZFlag").innerHTML = TSOS.MemoryManager.decToHex(this.Zflag);
+        };
+
+        Cpu.prototype.kill = function (id) {
+            if (this.pcb.getPID() == id) {
+                //                while(!this.pcb.isFinished(this.PC)){
+                //                    this.PC++;
+                //                }
+                //                console.log("happens");
+                this.isExecuting = false;
+                this.pcb = null;
+            }
         };
 
         /**
@@ -97,29 +163,42 @@ var TSOS;
                     this.Acc = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     break;
+
                 case 173:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Acc = _Memory.getMemoryBlock(val);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    this.Acc = _Memory.getMemoryBlock(val + this.base);
                     break;
+
                 case 141:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    _MemoryManager.setMemoryBlock(val, this.Acc);
+                    if (val + this.base > this.limit) {
+                        console.log("happens");
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    _MemoryManager.setMemoryBlock(val + this.base, this.Acc);
                     break;
+
                 case 109:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    var value = _Memory.getMemoryBlock(val + this.base);
                     this.Acc += value;
                     if (this.Acc > 255) {
                         this.Acc = 255;
@@ -133,33 +212,46 @@ var TSOS;
                     this.Yreg = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     break;
+
                 case 174:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Xreg = _Memory.getMemoryBlock(val);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    this.Xreg = _Memory.getMemoryBlock(val + this.base);
                     break;
+
                 case 172:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    this.Yreg = _Memory.getMemoryBlock(val);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    this.Yreg = _Memory.getMemoryBlock(val + this.base);
                     break;
                 case 234:
                     break;
+
                 case 236:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
-                    console.log(val);
-                    console.log(value);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    var value = _Memory.getMemoryBlock(val + this.base);
+
+                    //                    console.log(val);
+                    //                    console.log(value);
                     if (value == this.Xreg) {
                         this.Zflag = 255;
                     } else {
@@ -170,27 +262,29 @@ var TSOS;
                     var val = _Memory.getMemoryBlock(this.PC);
                     if (this.Zflag == 0) {
                         this.PC += val;
-                        console.log(val);
-                        if (this.PC > 256) {
+                        if (this.PC > this.pcb.getStart() + 256) {
                             this.PC -= 256;
                         }
                     } else {
-                        console.log("nobranch");
                         this.PC++;
                     }
                     break;
+
                 case 238:
                     var valA = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var valB = _Memory.getMemoryBlock(this.PC);
                     this.PC++;
                     var val = (valB * 256) + valA;
-                    var value = _Memory.getMemoryBlock(val);
+                    if (val + this.base > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
+                    var value = _Memory.getMemoryBlock(val + this.base);
                     value++;
                     if (value > 255) {
                         value = 255;
                     }
-                    _MemoryManager.setMemoryBlock(val, value);
+                    _MemoryManager.setMemoryBlock(val + this.base, value);
                     break;
                 case 0:
                     break;
@@ -211,7 +305,10 @@ var TSOS;
                     break;
                 case 2:
                     //                    console.log("happens");
-                    var i = this.Yreg;
+                    var i = this.Yreg + this.base;
+                    if (i > this.limit) {
+                        _Kernel.krnTrapError("Program exceeded memory boundary.");
+                    }
                     var x = _Memory.getMemoryBlock(i);
                     var output = "";
                     i++;
@@ -227,6 +324,13 @@ var TSOS;
                     }
                     _StdOut.putText(output);
                     break;
+            }
+        };
+
+        Cpu.prototype.shutDown = function () {
+            if (this.pcb != null) {
+                this.isExecuting = false;
+                this.pcb = null;
             }
         };
         return Cpu;

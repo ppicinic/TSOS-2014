@@ -4,19 +4,19 @@
 var TSOS;
 (function (TSOS) {
     var MemoryManager = (function () {
-        function MemoryManager(memoryTable) {
+        function MemoryManager(memoryTable, loadPos) {
             if (typeof memoryTable === "undefined") { memoryTable = null; }
+            if (typeof loadPos === "undefined") { loadPos = 0; }
             this.memoryTable = memoryTable;
+            this.loadPos = loadPos;
         }
         /**
         * Initializes memory manager and the host display
         */
         MemoryManager.prototype.init = function () {
+            this.loadPos = 0;
             this.memoryTable = document.getElementById("memory");
 
-            //            this.memoryTable.insertRow()
-            //            this.memoryTable.rows.item(0).
-            console.log("init memory");
             for (var i = 0; i < 96; i++) {
                 this.memoryTable.insertRow();
             }
@@ -50,6 +50,17 @@ var TSOS;
             var x = Math.floor(i / 16);
             var y = Math.floor((i - (x * 16)));
             return "" + MemoryManager.transform(x) + MemoryManager.transform(y);
+        };
+
+        MemoryManager.decToHex2 = function (i) {
+            var x = Math.floor(i / 256);
+            var y = Math.floor((i - (x * 256)) / 16);
+            var z = Math.floor((i - (x * 256) - (y * 16)));
+
+            //            console.log(x);
+            //            console.log(y);
+            //            console.log(z);
+            return "" + MemoryManager.transform(x) + MemoryManager.transform(y) + MemoryManager.transform(z);
         };
 
         /**
@@ -122,17 +133,24 @@ var TSOS;
         * @param hexValue the hex value
         */
         MemoryManager.prototype.loadMemory = function (hexValue) {
-            for (var i = 0; i < hexValue.length; i += 2) {
-                var valA = hexValue.charAt(i);
-                var valB = hexValue.charAt(i + 1);
-                var a = MemoryManager.hexToDec(valA + valB);
-                _Memory.setMemoryBlock(i / 2, a);
-                this.updateControl(i / 2);
-                //                var x = Math.floor(i / 16);
-                //                var y = (i - (x * 16)) / 2;
-                //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
-                //                cell.innerHTML = valA + valB;
+            if (_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+                var pos = this.loadPos * 256;
+                for (var i = 0; i < hexValue.length; i += 2) {
+                    var valA = hexValue.charAt(i);
+                    var valB = hexValue.charAt(i + 1);
+                    var a = MemoryManager.hexToDec(valA + valB);
+                    _Memory.setMemoryBlock(((i / 2) + pos), a);
+                    this.updateControl((i / 2) + pos);
+                    //                var x = Math.floor(i / 16);
+                    //                var y = (i - (x * 16)) / 2;
+                    //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
+                    //                cell.innerHTML = valA + valB;
+                }
+                this.loadPos++;
+                this.loadPos = this.loadPos % 3;
+                return pos;
             }
+            return -1;
         };
 
         /**
@@ -170,6 +188,13 @@ var TSOS;
             //            var c = _Memory.getMemoryBlock(a);
             //            var d = _Memory.getMemoryBlock(b);
             //            cell.innerHTML = MemoryManager.transform(c) + MemoryManager.transform(d);
+        };
+
+        MemoryManager.prototype.clearMem = function () {
+            for (var i = 0; i < 768; i++) {
+                _Memory.setMemoryBlock(i, 0);
+                this.updateControl(i);
+            }
         };
         return MemoryManager;
     })();

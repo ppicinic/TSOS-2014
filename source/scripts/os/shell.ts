@@ -107,6 +107,21 @@ module TSOS {
             sc = new ShellCommand(this.shellRun, "run", "<pid> - Run the specified user program");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new ShellCommand(this.shellClearMem, "clearmem", "- Clears all memory partitions.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellRunAll, "runall", "- Runs all active processes.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellQuantum, "quantum", "<tick> - sets the quantum rate.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellKill, "kill", "<pid> - kills the specified process.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellPs, "ps", "Displays all processes");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -393,19 +408,44 @@ module TSOS {
             if(program.length == 0 || memoryString.length % 2 != 0){
                 result = false;
             }
-            if(result){
-                _MemoryManager.loadMemory(memoryString);
-                var pcb : ProcessControlBlock = new ProcessControlBlock(0, memoryString.length / 2);
-                var i = _ProcessManager.add(pcb);
-                _StdOut.putText("Program loaded with PID " + i + ".");
+            if(result) {
+                var pos = _MemoryManager.loadMemory(memoryString);
+                if (pos != -1) {
+                    var pcb:ProcessControlBlock = new ProcessControlBlock(pos, memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
+                    _StdOut.putText("Program loaded with PID " + i + ".");
+                }else {
+                    _StdOut.putText("Program cannot be loaded while programs are running.");
+                }
             }else{
                 _StdOut.putText("Program is invalid.")
             }
         }
 
         public shellRun = function(args){
-            var pcb : ProcessControlBlock = _ProcessManager.getPcb(args[0]);
-            _CPU.setPcb(pcb);
+            if(_ProcessManager.contains(args[0])){
+                _CPUScheduler.addNew(_ProcessManager.getPcb(args[0]));
+            }
+        }
+
+        public shellRunAll = function(args){
+            _CPUScheduler.addAll(_ProcessManager.getAll())
+        }
+
+        public shellClearMem = function(args){
+            _MemoryManager.clearMem();
+        }
+
+        public shellQuantum = function(args){
+            _CPUScheduler.setQuantum(args[0]);
+        }
+
+        public shellKill = function(args){
+            _CPUScheduler.kill(args[0]);
+        }
+
+        public shellPs = function(args){
+            _CPUScheduler.display();
         }
 
         // changes the status of the OS status bar
