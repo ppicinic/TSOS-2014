@@ -55,6 +55,8 @@ var _OsShell;
 
 var _CPUScheduler;
 
+var _HDD;
+
 var _SingleStep = false;
 
 var _ProcessManager;

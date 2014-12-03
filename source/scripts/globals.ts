@@ -59,6 +59,8 @@ var _OsShell: TSOS.Shell;
 
 var _CPUScheduler : TSOS.CPUScheduler;
 
+var _HDD : TSOS.Hdd;// compile
+
 var _SingleStep: boolean = false;
 
 var _ProcessManager : TSOS.ProcessManager;

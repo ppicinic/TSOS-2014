@@ -100,6 +100,8 @@ module TSOS {
             _CPUScheduler = new CPUScheduler();
             _CPUScheduler.init();
 
+            //compile
+
             var statusBar = document.getElementById('taStatusBarStatus');
             statusBar.innerHTML = "On";
             // ... then set the host clock pulse ...
@@ -107,6 +109,17 @@ module TSOS {
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new Kernel();
             _Kernel.krnBootstrap();
+
+            _HDD = new Hdd();
+            _HDD.init();
+            _HDD.format();
+            _HDD.createFile("test.txt");
+            _HDD.writeToFileAsString("test.txt", "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but ");
+            _HDD.readFileAsString("test.txt");
+            _HDD.deleteFile("test.txt");
+            _HDD.readFileAsString("test.txt");
+            _HDD.deleteFile("test.txt");
+            _HDD.test();
         }
 
         public static turnSingleStepOnOff() : void{
