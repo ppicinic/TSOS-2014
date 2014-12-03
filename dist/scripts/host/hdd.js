@@ -4,12 +4,19 @@
 var TSOS;
 (function (TSOS) {
     var Hdd = (function () {
-        function Hdd(data) {
+        function Hdd(data, diskTable) {
             if (typeof data === "undefined") { data = new Array(8); }
+            if (typeof diskTable === "undefined") { diskTable = null; }
             this.data = data;
+            this.diskTable = diskTable;
         }
         //compile
         Hdd.prototype.init = function () {
+            this.startUp();
+            this.initDisplay();
+        };
+
+        Hdd.prototype.startUp = function () {
             var test = localStorage.getItem("drive");
 
             //console.log(localSto)
@@ -40,12 +47,85 @@ var TSOS;
             localStorage.setItem("drive", "true");
         };
 
-        Hdd.prototype.format = function () {
-            localStorage.setItem("drive", "false");
-            this.init();
+        Hdd.prototype.initDisplay = function () {
+            //            this.loadPos = 0;
+            var x1 = 0;
+            var y1 = 0;
+            var z1 = 0;
+            this.diskTable = document.getElementById("hdd");
+
+            for (var i = 0; i < 513; i++) {
+                this.diskTable.insertRow();
+            }
+            var row = this.diskTable.rows.item(0);
+            for (var x = 0; x < 3; x++) {
+                row.insertCell();
+            }
+            for (var x = 0; x < 3; x++) {
+                var cell = row.cells.item(x);
+                if (x == 0) {
+                    cell.innerHTML = "TSB";
+                } else if (x == 1) {
+                    cell.innerHTML = "Meta";
+                } else {
+                    cell.innerHTML = "Data";
+                }
+            }
+            for (var i = 1; i < 513; i++) {
+                //                var row = new HTMLTableRowElement();
+                //                this.memoryTable.innerHTML = "<tr></tr>"
+                var row = this.diskTable.rows.item(i);
+                for (var x = 0; x < 3; x++) {
+                    row.insertCell();
+                }
+
+                for (var x = 0; x < 3; x++) {
+                    var cell = row.cells.item(x);
+                    if (x == 0) {
+                        cell.innerHTML = "" + x1 + ":" + y1 + ":" + z1;
+                    } else if (x == 1) {
+                        var text = "";
+                        for (var j = 0; j < 4; j++) {
+                            text += TSOS.MemoryManager.decToHex(this.data[x1][y1][z1][j]);
+                        }
+                        cell.innerHTML = text;
+                    } else {
+                        var text = "";
+                        for (var j = 4; j < 64; j++) {
+                            text += TSOS.MemoryManager.decToHex(this.data[x1][y1][z1][j]);
+                        }
+                        cell.innerHTML = text;
+                    }
+                }
+                z1++;
+                if (z1 >= 8) {
+                    z1 = 0;
+                    y1++;
+                    if (y1 >= 8) {
+                        y1 = 0;
+                        x1++;
+                    }
+                }
+            }
         };
 
-        Hdd.prototype.deleteFile = function (filename) {
+        Hdd.prototype.format = function () {
+            localStorage.setItem("drive", "false");
+            this.startUp();
+            this.refreshWholeDisplay();
+        };
+
+        Hdd.prototype.refreshWholeDisplay = function () {
+            for (var x = 0; x < 8; x++) {
+                for (var y = 0; y < 8; y++) {
+                    for (var z = 0; z < 8; z++) {
+                        this.updateDisplay(x, y, z);
+                    }
+                }
+            }
+        };
+
+        Hdd.prototype.deleteFile = function (filename, user) {
             var exists = false;
             var x1 = 0;
             var y1 = 0;
@@ -106,7 +186,9 @@ var TSOS;
                             done = true;
                         }
                         this.data[x1][y1][z1][0] = 0;
+                        this.data[x1][y1][z1][1] = 0;
                         this.setData(x1, y1, z1, 0);
+                        this.setData(x1, y1, z1, 1);
                         x1 = x2;
                         y1 = y2;
                         z1 = z2;
@@ -119,13 +201,45 @@ var TSOS;
                         this.data[0][my][mz][3] = 0;
                         this.setData(0, my, mz, 3);
                     }
-                    _StdOut.putText(filename + " successfully deleted.");
+                    if (user) {
+                        _StdOut.putText(filename + " successfully deleted.");
+                    }
                 } else {
                     //file in use
-                    _StdOut.putText(filename + " is already in use.");
+                    if (user) {
+                        _StdOut.putText(filename + " is already in use.");
+                    }
                 }
             } else {
-                _StdOut.putText(filename + " does not exist.");
+                if (user) {
+                    _StdOut.putText(filename + " does not exist.");
+                }
+            }
+        };
+
+        Hdd.prototype.listFiles = function () {
+            var filename = "";
+            var first = true;
+            for (var y = 0; y < 8; y++) {
+                for (var z = 0; z < 8; z++) {
+                    if (this.data[0][y][z][0] != 0) {
+                        var done = false;
+                        for (var j = 4; j < 64 && !done; j++) {
+                            var i = this.data[0][y][z][j];
+                            if (i == 0) {
+                                done = true;
+                                if (!first) {
+                                    _StdOut.advanceLine();
+                                }
+                                _StdOut.putText(filename);
+                                filename = "";
+                                first = false;
+                            } else {
+                                filename += String.fromCharCode(i);
+                            }
+                        }
+                    }
+                }
             }
         };
 
@@ -223,7 +337,7 @@ var TSOS;
             }
         };
 
-        Hdd.prototype.createFile = function (filename) {
+        Hdd.prototype.createFile = function (filename, user) {
             var x1 = 0;
             var y1 = 0;
             var z1 = 0;
@@ -269,7 +383,9 @@ var TSOS;
                 }
             }
             if (exists) {
-                _StdOut.putText("The file already exists.");
+                if (user) {
+                    _StdOut.putText("The file already exists.");
+                }
             } else {
                 this.data[0][y2][z2][0] = x1;
                 this.data[0][y2][z2][1] = y1;
@@ -285,11 +401,13 @@ var TSOS;
                     this.data[0][y2][z2][i + 4] = filename.charCodeAt(i);
                     this.setData(0, y2, z2, i + 4);
                 }
-                _StdOut.putText(filename + " created successfully.");
+                if (user) {
+                    _StdOut.putText(filename + " created successfully.");
+                }
             }
         };
 
-        Hdd.prototype.writeFile = function (filename, file) {
+        Hdd.prototype.writeFile = function (filename, file, user) {
             //            console.log("writing");
             var exists = false;
             var x1 = 0;
@@ -336,34 +454,47 @@ var TSOS;
                     var h = 1;
                     while (i < file.length) {
                         if (h >= 61) {
-                            var x2 = 0;
-                            var y2 = 0;
-                            var z2 = 0;
-                            var found = false;
-                            for (var x = 1; x < 8 && !found; x++) {
-                                for (var y = 0; y < 8 && !found; y++) {
-                                    for (var z = 0; z < 8 && !found; z++) {
-                                        if (this.data[x][y][z][0] == 0) {
-                                            this.data[x][y][z][0] = 1;
-                                            this.setData(x, y, z, 0);
-                                            found = true;
-                                            x2 = x;
-                                            y2 = y;
-                                            z2 = z;
+                            if (this.data[x1][y1][z1][h] == 0) {
+                                var x2 = 0;
+                                var y2 = 0;
+                                var z2 = 0;
+                                var found = false;
+                                for (var x = 1; x < 8 && !found; x++) {
+                                    for (var y = 0; y < 8 && !found; y++) {
+                                        for (var z = 0; z < 8 && !found; z++) {
+                                            if (this.data[x][y][z][0] == 0) {
+                                                this.data[x][y][z][0] = 1;
+                                                this.setData(x, y, z, 0);
+                                                found = true;
+                                                x2 = x;
+                                                y2 = y;
+                                                z2 = z;
+                                            }
                                         }
                                     }
                                 }
+                                this.data[x1][y1][z1][61] = x2;
+                                this.data[x1][y1][z1][62] = y2;
+                                this.data[x1][y1][z1][63] = z2;
+                                this.setData(x1, y1, z1, 61);
+                                this.setData(x1, y1, z1, 62);
+                                this.setData(x1, y1, z1, 63);
+                                x1 = x2;
+                                y1 = y2;
+                                z1 = z2;
+                                h = 1;
+                            } else {
+                                var x2 = 0;
+                                var y2 = 0;
+                                var z2 = 0;
+                                x2 = this.data[x1][y1][z1][61];
+                                y2 = this.data[x1][y1][z1][62];
+                                z2 = this.data[x1][y1][z1][63];
+                                x1 = x2;
+                                y1 = y2;
+                                z1 = z2;
+                                h = 1;
                             }
-                            this.data[x1][y1][z1][61] = x2;
-                            this.data[x1][y1][z1][62] = y2;
-                            this.data[x1][y1][z1][63] = z2;
-                            this.setData(x1, y1, z1, 61);
-                            this.setData(x1, y1, z1, 62);
-                            this.setData(x1, y1, z1, 63);
-                            x1 = x2;
-                            y1 = y2;
-                            z1 = z2;
-                            h = 1;
                         }
                         this.data[x1][y1][z1][h] = file[i];
                         this.setData(x1, y1, z1, h);
@@ -406,12 +537,18 @@ var TSOS;
 
                     this.data[0][my][mz][3] = 0;
                     this.setData(0, my, mz, 3);
-                    _StdOut.putText("Written to " + filename + " successfully.");
+                    if (user) {
+                        _StdOut.putText("Written to " + filename + " successfully.");
+                    }
                 } else {
-                    _StdOut.putText(filename + " is currently in use.");
+                    if (user) {
+                        _StdOut.putText(filename + " is currently in use.");
+                    }
                 }
             } else {
-                _StdOut.putText(filename + " does not exist.");
+                if (user) {
+                    _StdOut.putText(filename + " does not exist.");
+                }
             }
         };
 
@@ -421,10 +558,34 @@ var TSOS;
             for (var i = 0; i < text.length; i++) {
                 file.push(text.charCodeAt(i));
             }
-            this.writeFile(filename, file);
+            this.writeFile(filename, file, false);
         };
         Hdd.prototype.setData = function (x, y, z, j) {
             localStorage.setItem("drive" + x + "" + y + "" + z + "" + j + "", this.data[x][y][z][j].toString());
+
+            //            console.log(x);
+            this.updateDisplay(x, y, z);
+        };
+
+        Hdd.prototype.updateDisplay = function (x, y, z) {
+            var i = (x * 64) + (y * 8) + z + 1;
+            var row = this.diskTable.rows.item(i);
+            for (var l = 1; l < 3; l++) {
+                var cell = row.cells.item(l);
+                if (l == 1) {
+                    var text = "";
+                    for (var k = 0; k < 4; k++) {
+                        text += TSOS.MemoryManager.decToHex(this.data[x][y][z][k]);
+                    }
+                    cell.innerHTML = text;
+                } else {
+                    var text = "";
+                    for (var k = 4; k < 64; k++) {
+                        text += TSOS.MemoryManager.decToHex(this.data[x][y][z][k]);
+                    }
+                    cell.innerHTML = text;
+                }
+            }
         };
 
         Hdd.prototype.test = function () {

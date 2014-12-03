@@ -6,11 +6,17 @@ module TSOS {
 
     export class Hdd {
 
-        public constructor(public data: number[][][][] = new Array(8)){
+        public constructor(public data: number[][][][] = new Array(8),
+                            public diskTable = null){
 
         }
         //compile
         public init() : void {
+            this.startUp();
+            this.initDisplay();
+        }
+
+        public startUp() : void {
             var test = localStorage.getItem("drive");
             //console.log(localSto)
             if(true){
@@ -38,12 +44,89 @@ module TSOS {
             localStorage.setItem("drive", "true");
         }
 
-        public format() : void {
-            localStorage.setItem("drive", "false");
-            this.init();
+        public initDisplay() : void {
+//            this.loadPos = 0;
+            var x1 = 0;
+            var y1 = 0;
+            var z1 = 0;
+            this.diskTable = <HTMLTableElement> document.getElementById("hdd");
+//            this.memoryTable.insertRow()
+//            this.memoryTable.rows.item(0).
+//            console.log("init memory");
+            for(var i = 0; i < 513; i++){
+                this.diskTable.insertRow();
+            }
+            var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(0);
+            for(var x = 0; x < 3; x++){
+                row.insertCell();
+            }
+            for(var x = 0; x < 3; x++){
+                var cell:HTMLTableDataCellElement = <HTMLTableCellElement> row.cells.item(x);
+                if(x == 0){
+                    cell.innerHTML = "TSB";
+                }else if(x == 1){
+                    cell.innerHTML = "Meta";
+                }else{
+                    cell.innerHTML = "Data";
+                }
+            }
+            for(var i = 1; i < 513; i++ ){
+//                var row = new HTMLTableRowElement();
+//                this.memoryTable.innerHTML = "<tr></tr>"
+                var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(i);
+                for(var x = 0; x < 3; x++) {
+                    row.insertCell();
+                }
+//                console.log("insert" + i);
+
+                for(var x = 0; x < 3; x++) {
+                    var cell:HTMLTableDataCellElement = <HTMLTableCellElement> row.cells.item(x);
+                    if(x == 0){
+                        cell.innerHTML = "" + x1 + ":" + y1 + ":" + z1;
+                    }else if(x == 1){
+                        var text : string = "";
+                        for(var j = 0; j < 4; j++) {
+                            text += MemoryManager.decToHex(this.data[x1][y1][z1][j]);
+                        }
+                        cell.innerHTML = text;
+                    }else{
+                        var text : string = "";
+                        for(var j = 4; j < 64; j++) {
+                            text += MemoryManager.decToHex(this.data[x1][y1][z1][j]);
+                        }
+                        cell.innerHTML = text;
+                    }
+                }
+                z1++;
+                if(z1 >= 8){
+                    z1 = 0;
+                    y1++;
+                    if(y1 >= 8){
+                        y1 = 0;
+                        x1++;
+                    }
+                }
+
+            }
         }
 
-        public deleteFile(filename : string) : void {
+        public format() : void {
+            localStorage.setItem("drive", "false");
+            this.startUp();
+            this.refreshWholeDisplay();
+        }
+
+        public refreshWholeDisplay() : void {
+            for(var x = 0; x < 8; x++){
+                for(var y = 0; y < 8; y++){
+                    for(var z = 0; z < 8; z++){
+                        this.updateDisplay(x, y, z);
+                    }
+                }
+            }
+        }
+
+        public deleteFile(filename : string, user : boolean) : void {
             var exists : boolean = false;
             var x1 = 0;
             var y1 = 0;
@@ -106,7 +189,9 @@ module TSOS {
                             done = true;
                         }
                         this.data[x1][y1][z1][0] = 0;
+                        this.data[x1][y1][z1][1] = 0;
                         this.setData(x1, y1, z1, 0);
+                        this.setData(x1, y1, z1, 1);
                         x1 = x2;
                         y1 = y2;
                         z1 = z2;
@@ -119,13 +204,45 @@ module TSOS {
                         this.data[0][my][mz][3] = 0;
                         this.setData(0, my, mz, 3);
                     }
-                    _StdOut.putText(filename + " successfully deleted.");
+                    if(user) {
+                        _StdOut.putText(filename + " successfully deleted.");
+                    }
                 }else{
                     //file in use
-                    _StdOut.putText(filename + " is already in use.");
+                    if(user) {
+                        _StdOut.putText(filename + " is already in use.");
+                    }
                 }
             }else{
-                _StdOut.putText(filename + " does not exist.");
+                if(user) {
+                    _StdOut.putText(filename + " does not exist.");
+                }
+            }
+        }
+
+        public listFiles() : void {
+            var filename : string = "";
+            var first : boolean = true;
+            for(var y = 0; y < 8; y++){
+                for(var z = 0; z < 8; z++){
+                    if(this.data[0][y][z][0] != 0){
+                        var done : boolean = false;
+                        for(var j = 4; j < 64 && !done; j++){
+                            var i = this.data[0][y][z][j];
+                            if(i == 0){
+                                done = true;
+                                if(!first){
+                                    _StdOut.advanceLine();
+                                }
+                                _StdOut.putText(filename);
+                                filename = "";
+                                first = false;
+                            }else{
+                                filename += String.fromCharCode(i);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -224,7 +341,7 @@ module TSOS {
             }
         }
 
-        public createFile(filename : string) : void {
+        public createFile(filename : string, user : boolean) : void {
            var x1 = 0;
            var y1 = 0;
            var z1 = 0;
@@ -272,7 +389,9 @@ module TSOS {
                 }
             }
             if(exists){
-                _StdOut.putText("The file already exists.");
+                if(user) {
+                    _StdOut.putText("The file already exists.");
+                }
             }else{
                 this.data[0][y2][z2][0] = x1;
                 this.data[0][y2][z2][1] = y1;
@@ -288,12 +407,14 @@ module TSOS {
                     this.data[0][y2][z2][i + 4] = filename.charCodeAt(i);
                     this.setData(0, y2, z2, i + 4);
                 }
-                _StdOut.putText(filename + " created successfully.");
+                if(user) {
+                    _StdOut.putText(filename + " created successfully.");
+                }
             }
 
         }
 
-        public writeFile(filename : string, file : number[]){
+        public writeFile(filename : string, file : number[], user : boolean){
 //            console.log("writing");
             var exists : boolean = false;
             var x1 = 0;
@@ -340,34 +461,47 @@ module TSOS {
                     var h = 1;
                     while (i < file.length) {
                         if (h >= 61) {
-                            var x2 = 0;
-                            var y2 = 0;
-                            var z2 = 0;
-                            var found:boolean = false;
-                            for (var x = 1; x < 8 && !found; x++) {
-                                for (var y = 0; y < 8 && !found; y++) {
-                                    for (var z = 0; z < 8 && !found; z++) {
-                                        if (this.data[x][y][z][0] == 0) {
-                                            this.data[x][y][z][0] = 1;
-                                            this.setData(x, y, z, 0);
-                                            found = true;
-                                            x2 = x;
-                                            y2 = y;
-                                            z2 = z;
+                            if (this.data[x1][y1][z1][h] == 0) {
+                                var x2 = 0;
+                                var y2 = 0;
+                                var z2 = 0;
+                                var found:boolean = false;
+                                for (var x = 1; x < 8 && !found; x++) {
+                                    for (var y = 0; y < 8 && !found; y++) {
+                                        for (var z = 0; z < 8 && !found; z++) {
+                                            if (this.data[x][y][z][0] == 0) {
+                                                this.data[x][y][z][0] = 1;
+                                                this.setData(x, y, z, 0);
+                                                found = true;
+                                                x2 = x;
+                                                y2 = y;
+                                                z2 = z;
+                                            }
                                         }
                                     }
                                 }
+                                this.data[x1][y1][z1][61] = x2;
+                                this.data[x1][y1][z1][62] = y2;
+                                this.data[x1][y1][z1][63] = z2;
+                                this.setData(x1, y1, z1, 61);
+                                this.setData(x1, y1, z1, 62);
+                                this.setData(x1, y1, z1, 63);
+                                x1 = x2;
+                                y1 = y2;
+                                z1 = z2;
+                                h = 1;
+                            }else{
+                                var x2 = 0;
+                                var y2 = 0;
+                                var z2 = 0;
+                                x2 = this.data[x1][y1][z1][61];
+                                y2 = this.data[x1][y1][z1][62];
+                                z2 = this.data[x1][y1][z1][63];
+                                x1 = x2;
+                                y1 = y2;
+                                z1 = z2;
+                                h = 1;
                             }
-                            this.data[x1][y1][z1][61] = x2;
-                            this.data[x1][y1][z1][62] = y2;
-                            this.data[x1][y1][z1][63] = z2;
-                            this.setData(x1, y1, z1, 61);
-                            this.setData(x1, y1, z1, 62);
-                            this.setData(x1, y1, z1, 63);
-                            x1 = x2;
-                            y1 = y2;
-                            z1 = z2;
-                            h = 1;
                         }
                         this.data[x1][y1][z1][h] = file[i];
                         this.setData(x1, y1, z1, h);
@@ -409,12 +543,18 @@ module TSOS {
 
                     this.data[0][my][mz][3] = 0;
                     this.setData(0, my, mz, 3);
-                    _StdOut.putText("Written to " + filename + " successfully.");
+                    if(user) {
+                        _StdOut.putText("Written to " + filename + " successfully.");
+                    }
                 }else{
-                    _StdOut.putText(filename + " is currently in use.");
+                    if(user) {
+                        _StdOut.putText(filename + " is currently in use.");
+                    }
                 }
             }else{
-                _StdOut.putText(filename + " does not exist.")
+                if(user) {
+                    _StdOut.putText(filename + " does not exist.")
+                }
             }
         }
 
@@ -424,10 +564,33 @@ module TSOS {
             for(var i = 0; i < text.length; i++){
                 file.push(text.charCodeAt(i));
             }
-            this.writeFile(filename, file);
+            this.writeFile(filename, file, false);
         }
         public setData(x, y, z, j) : void {
             localStorage.setItem("drive" + x + "" + y + "" + z + "" + j + "", this.data[x][y][z][j].toString());
+//            console.log(x);
+            this.updateDisplay(x, y, z);
+        }
+
+        public updateDisplay(x, y, z): void{
+            var i = (x * 64) + (y * 8) + z + 1;
+            var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(i);
+            for(var l = 1; l < 3; l++){
+                var cell:HTMLTableDataCellElement = <HTMLTableCellElement> row.cells.item(l);
+                if(l == 1){
+                    var text : string = "";
+                    for(var k = 0; k < 4; k++) {
+                        text += MemoryManager.decToHex(this.data[x][y][z][k]);
+                    }
+                    cell.innerHTML = text;
+                }else{
+                    var text : string = "";
+                    for(var k = 4; k < 64; k++) {
+                        text += MemoryManager.decToHex(this.data[x][y][z][k]);
+                    }
+                    cell.innerHTML = text;
+                }
+            }
         }
 
         public test() : void {

@@ -18,6 +18,21 @@ var TIMER_IRQ = 0;
 
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
+var FSDD_IRQ = 2;
+
+// FSDD PARAM CONSTANTS
+var FORMAT_DRIVE = 0;
+var CREATE_FILE = 1;
+var WRITE_FILE = 2;
+var READ_FILE = 3;
+var DELETE_FILE = 4;
+var LIST_FILES = 5;
+
+var USER_REQUEST = 0;
+var OS_REQUEST = 1;
+
+var AS_STRING = 0;
+var AS_DATA = 0;
 
 //
 // Global Variables
@@ -66,6 +81,7 @@ var _SarcasticMode = false;
 
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver = null;
+var _krnHddDriver = null;
 
 var _hardwareClockID = null;
 

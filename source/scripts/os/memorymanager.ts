@@ -72,7 +72,7 @@ module TSOS {
          * @param i the number to convert
          * @returns {string} the converted hex
          */
-        private static transform2(i : number): string{
+        public static transform2(i : number): string{
             var x = Math.floor(i / 256);
             var y = Math.floor((i - (x * 256)) / 16);
             var z = ((i - (x * 256)) - (y * 16));
