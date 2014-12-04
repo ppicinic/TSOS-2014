@@ -47,6 +47,8 @@ module TSOS {
                         this.tick++;
                         return 3;
                     }
+                }else{
+                    return 3;
                 }
             }else{
                 if(!this.isEmpty()){
@@ -122,8 +124,14 @@ module TSOS {
                         x = i;
                     }
                 }
-                pcb = this.readyQueue[x];
-                this.readyQueue = this.readyQueue.splice(x,1);
+//                pcb = this.readyQueue[x];
+//                console.log(this.readyQueue);
+                var temp = this.readyQueue[x];
+                for(var i = x; i > 0; i--){
+                    this.readyQueue[i] = this.readyQueue[i-1];
+                }
+                this.readyQueue[0] = temp;
+                pcb = this.readyQueue.shift();
             }
             console.log(pcb);
             if(pcb.onDrive()){
@@ -210,7 +218,7 @@ module TSOS {
         public updateDisplay(){
 
             var output : string = "";
-            output += "PID    PC   IR   Acc    X    Y    Z   State";
+            output += "PID    PC   IR   Acc    X    Y    Z   State     Location     Priority";
             if(this.displayQueue.length == 0){
                 output += "\nThere are no running processes."
             }
@@ -232,6 +240,14 @@ module TSOS {
                 output += this.pad2(MemoryManager.decToHex(pcb.getZFlag()));
                 output += "   ";
                 output += pcb.getState();
+                output += "   ";
+                if(pcb.onDrive()){
+                    output += "Hard Drive";
+                }else{
+                    output += "    Memory"
+                }
+                output += "   ";
+                output += pcb.getPriority();
 
             }
             document.getElementById("taPCBDisplay").innerHTML = output;

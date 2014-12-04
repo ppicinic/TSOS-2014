@@ -442,8 +442,10 @@ module TSOS {
                 var pos : number = _MemoryManager.loadMemory(code);
                 var pcb:ProcessControlBlock = new ProcessControlBlock(memoryString.length / 2);
                 var i = _ProcessManager.add(pcb);
-                if(args[1] != null){
-                    pcb.setPriority(parseInt(args[1]));
+                console.log("args");
+                console.log(args);
+                if(args[0] != null && args[0].trim() != ""){
+                    pcb.setPriority(parseInt(args[0]));
                 }
                 if(pos != -1){
                     pcb.setStart(pos);
