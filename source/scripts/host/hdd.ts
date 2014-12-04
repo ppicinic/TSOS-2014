@@ -20,8 +20,8 @@ module TSOS {
             var test = localStorage.getItem("drive");
             //console.log(localSto)
             if(true){
-                this.data = new Array(8);
-                for(var x = 0; x < 8; x++){
+                this.data = new Array(4);
+                for(var x = 0; x < 4; x++){
                     this.data[x] = new Array(8);
                     for(var y = 0; y < 8; y++){
                         this.data[x][y] = new Array(8);
@@ -53,7 +53,7 @@ module TSOS {
 //            this.memoryTable.insertRow()
 //            this.memoryTable.rows.item(0).
 //            console.log("init memory");
-            for(var i = 0; i < 513; i++){
+            for(var i = 0; i < 257; i++){
                 this.diskTable.insertRow();
             }
             var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(0);
@@ -70,7 +70,7 @@ module TSOS {
                     cell.innerHTML = "Data";
                 }
             }
-            for(var i = 1; i < 513; i++ ){
+            for(var i = 1; i < 257; i++ ){
 //                var row = new HTMLTableRowElement();
 //                this.memoryTable.innerHTML = "<tr></tr>"
                 var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(i);
@@ -117,7 +117,7 @@ module TSOS {
         }
 
         public refreshWholeDisplay() : void {
-            for(var x = 0; x < 8; x++){
+            for(var x = 0; x < 4; x++){
                 for(var y = 0; y < 8; y++){
                     for(var z = 0; z < 8; z++){
                         this.updateDisplay(x, y, z);
@@ -349,7 +349,7 @@ module TSOS {
            var y1 = 0;
            var z1 = 0;
             var found : boolean = false;
-           for(var x = 1; x < 8 && !found; x++){
+           for(var x = 1; x < 4 && !found; x++){
                 for(var y = 0; y < 8 && !found; y++){
                     for(var z = 0; z < 8 && !found; z++){
                         if(this.data[x][y][z][0] == 0){
@@ -395,7 +395,12 @@ module TSOS {
                 if(user) {
                     _StdOut.putText("The file already exists.");
                 }
-            }else{
+            }else if(!found) {
+                if(user){
+                    _StdOut.putText("Not enough memory.");
+                }
+            }else
+            {
                 this.data[0][y2][z2][0] = x1;
                 this.data[0][y2][z2][1] = y1;
                 this.data[0][y2][z2][2] = z1;
@@ -469,7 +474,7 @@ module TSOS {
                                 var y2 = 0;
                                 var z2 = 0;
                                 var found:boolean = false;
-                                for (var x = 1; x < 8 && !found; x++) {
+                                for (var x = 1; x < 4 && !found; x++) {
                                     for (var y = 0; y < 8 && !found; y++) {
                                         for (var z = 0; z < 8 && !found; z++) {
                                             if (this.data[x][y][z][0] == 0) {
@@ -483,16 +488,22 @@ module TSOS {
                                         }
                                     }
                                 }
-                                this.data[x1][y1][z1][61] = x2;
-                                this.data[x1][y1][z1][62] = y2;
-                                this.data[x1][y1][z1][63] = z2;
-                                this.setData(x1, y1, z1, 61);
-                                this.setData(x1, y1, z1, 62);
-                                this.setData(x1, y1, z1, 63);
-                                x1 = x2;
-                                y1 = y2;
-                                z1 = z2;
-                                h = 1;
+                                if (!found) {
+                                    if(user){
+                                        _StdOut.putText("Not enough memory.");
+                                    }
+                                }else {
+                                    this.data[x1][y1][z1][61] = x2;
+                                    this.data[x1][y1][z1][62] = y2;
+                                    this.data[x1][y1][z1][63] = z2;
+                                    this.setData(x1, y1, z1, 61);
+                                    this.setData(x1, y1, z1, 62);
+                                    this.setData(x1, y1, z1, 63);
+                                    x1 = x2;
+                                    y1 = y2;
+                                    z1 = z2;
+                                    h = 1;
+                                }
                             }else{
                                 var x2 = 0;
                                 var y2 = 0;
