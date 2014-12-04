@@ -139,6 +139,12 @@ module TSOS {
 
             sc = new ShellCommand(this.shellLs, "ls", "lists all files.");
             this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellGetSchedule, "getschedule", "Gets the CPU Schedule.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new ShellCommand(this.shellSetSchedule, "setschedule", "<schedule> - Sets the CPU Schedule.");
+            this.commandList[this.commandList.length] = sc;
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -410,6 +416,7 @@ module TSOS {
 
         // loads a user program and validates the input
         public shellLoad = function(args) {
+
             var element:HTMLTextAreaElement = <HTMLTextAreaElement> document.getElementById("taProgramInput");
             var program:string = element.value;
             program = program.trim();
@@ -435,6 +442,9 @@ module TSOS {
                 var pos : number = _MemoryManager.loadMemory(code);
                 var pcb:ProcessControlBlock = new ProcessControlBlock(memoryString.length / 2);
                 var i = _ProcessManager.add(pcb);
+                if(args[1] != null){
+                    pcb.setPriority(parseInt(args[1]));
+                }
                 if(pos != -1){
                     pcb.setStart(pos);
                 }else{
@@ -568,6 +578,20 @@ module TSOS {
             params.push(null); //filename
             params.push(null);//file
             _KernelInterruptQueue.enqueue(new Interrupt(FSDD_IRQ, params));
+        }
+
+        public shellGetSchedule = function(args){
+            _StdOut.putText(_CPUScheduler.getMode());
+        }
+
+        public shellSetSchedule = function(args){
+            if(args[0] == "rr"){
+                _CPUScheduler.setMode(0);
+            }else if(args[0] == "fcfs"){
+                _CPUScheduler.setMode(1)
+            }else if(args[0] == "priority"){
+                _CPUScheduler.setMode(2);
+            }
         }
 
         public shellLs = function(args){

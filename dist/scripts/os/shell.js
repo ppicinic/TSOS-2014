@@ -64,6 +64,9 @@ var TSOS;
                     var pos = _MemoryManager.loadMemory(code);
                     var pcb = new TSOS.ProcessControlBlock(memoryString.length / 2);
                     var i = _ProcessManager.add(pcb);
+                    if (args[1] != null) {
+                        pcb.setPriority(parseInt(args[1]));
+                    }
                     if (pos != -1) {
                         pcb.setStart(pos);
                     } else {
@@ -186,6 +189,18 @@ var TSOS;
                 params.push(null); //file
                 _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
             };
+            this.shellGetSchedule = function (args) {
+                _StdOut.putText(_CPUScheduler.getMode());
+            };
+            this.shellSetSchedule = function (args) {
+                if (args[0] == "rr") {
+                    _CPUScheduler.setMode(0);
+                } else if (args[0] == "fcfs") {
+                    _CPUScheduler.setMode(1);
+                } else if (args[0] == "priority") {
+                    _CPUScheduler.setMode(2);
+                }
+            };
             this.shellLs = function (args) {
                 var params = new Array();
                 params.push(LIST_FILES); //request
@@ -294,6 +309,12 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
 
             sc = new TSOS.ShellCommand(this.shellLs, "ls", "lists all files.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellGetSchedule, "getschedule", "Gets the CPU Schedule.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellSetSchedule, "setschedule", "<schedule> - Sets the CPU Schedule.");
             this.commandList[this.commandList.length] = sc;
 
             // processes - list the running processes and their IDs

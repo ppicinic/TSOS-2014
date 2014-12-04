@@ -21,6 +21,21 @@ var TSOS;
             this.updateDisplay();
         };
 
+        CPUScheduler.prototype.setMode = function (i) {
+            this.mode = i;
+        };
+
+        CPUScheduler.prototype.getMode = function () {
+            if (this.mode == 0) {
+                return "Round Robin";
+            } else if (this.mode == 1) {
+                return "First Come First Serve";
+            } else if (this.mode == 2) {
+                return "Priority Queue";
+            }
+            return "";
+        };
+
         // 0 do nothing
         // 1 grab a pcb
         // 2 context switch pcb
@@ -96,7 +111,21 @@ var TSOS;
             return this.readyQueue.length == 0;
         };
         CPUScheduler.prototype.next = function () {
-            var pcb = this.readyQueue.shift();
+            var pcb = null;
+            if (this.mode != 2) {
+                pcb = this.readyQueue.shift();
+            } else {
+                var min = 10000000000000000000;
+                var x = 0;
+                for (var i = 0; i < this.readyQueue.length; i++) {
+                    if (this.readyQueue[i].getPriority() < min) {
+                        min = this.readyQueue[i].getPriority();
+                        x = i;
+                    }
+                }
+                pcb = this.readyQueue[x];
+                this.readyQueue = this.readyQueue.splice(x, 1);
+            }
             console.log(pcb);
             if (pcb.onDrive()) {
                 if (!_MemoryManager.memAvailable()) {

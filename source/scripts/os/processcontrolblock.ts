@@ -19,7 +19,8 @@ module TSOS {
             public ZFlag : number = 0,
             public PID : number = 0,
             public state : string = "Waiting",
-            public drive : boolean = false){
+            public drive : boolean = false,
+            public priority : number = 10){
             this.end = this.start + this.length;
             this.PC = this.start;
         }
@@ -32,6 +33,14 @@ module TSOS {
 
         public init() : void{
 
+        }
+
+        public getPriority() : number{
+            return this.priority;
+        }
+
+        public setPriority(i : number){
+            this.priority = i;
         }
 
         public setPID(id) : void{

@@ -5,7 +5,7 @@ var TSOS;
 (function (TSOS) {
     // stores information about a user program
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(length, start, end, PC, IR, Acc, XReg, YReg, ZFlag, PID, state, drive) {
+        function ProcessControlBlock(length, start, end, PC, IR, Acc, XReg, YReg, ZFlag, PID, state, drive, priority) {
             if (typeof start === "undefined") { start = 0; }
             if (typeof end === "undefined") { end = 0; }
             if (typeof PC === "undefined") { PC = 0; }
@@ -17,6 +17,7 @@ var TSOS;
             if (typeof PID === "undefined") { PID = 0; }
             if (typeof state === "undefined") { state = "Waiting"; }
             if (typeof drive === "undefined") { drive = false; }
+            if (typeof priority === "undefined") { priority = 10; }
             this.length = length;
             this.start = start;
             this.end = end;
@@ -29,6 +30,7 @@ var TSOS;
             this.PID = PID;
             this.state = state;
             this.drive = drive;
+            this.priority = priority;
             this.end = this.start + this.length;
             this.PC = this.start;
         }
@@ -39,6 +41,14 @@ var TSOS;
         };
 
         ProcessControlBlock.prototype.init = function () {
+        };
+
+        ProcessControlBlock.prototype.getPriority = function () {
+            return this.priority;
+        };
+
+        ProcessControlBlock.prototype.setPriority = function (i) {
+            this.priority = i;
         };
 
         ProcessControlBlock.prototype.setPID = function (id) {
