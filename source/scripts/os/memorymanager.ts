@@ -6,8 +6,11 @@ module TSOS {
 
     export class MemoryManager{
 
-        constructor(public memoryTable : HTMLTableElement = null, public loadPos : number = 0){
-
+        constructor(public memoryTable : HTMLTableElement = null, public loadPos : number = 0, public avail : boolean[] = new Array(3)){
+            this.avail[0] = true;
+            this.avail[1] = true;
+            this.avail[2] = true;
+            console.log(this.avail);
         }
 
         /**
@@ -130,27 +133,73 @@ module TSOS {
             return x;
         }
 
+        public memAvailable() : boolean {
+            for(var i = 0; i < this.avail.length; i++){
+                if(this.avail[i]){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public getProgramData(i : number) : number[] {
+            var code : number[] = new Array(256);
+            for(var x = 0; x < 256; x++ ){
+                code[x] = _Memory.getMemoryBlock((i * 256) + x);
+            }
+            return code;
+        }
+
+        public free(i : number) : void {
+            this.avail[i] = true;
+        }
+
         /**
          * Store a hex value in memory
          * @param hexValue the hex value
          */
-        public loadMemory(hexValue : string) : number{
-            if(_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
-                var pos = this.loadPos * 256;
+        public parseCode(hexValue : string) : number[]{
+//            if(_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+            var code : number[] = new Array(256);
+//                var pos = this.loadPos * 256;
+            for(var i = 0; i < 256; i++){
+                code[i] = 0;
+            }
                 for (var i = 0; i < hexValue.length; i += 2) {
                     var valA = hexValue.charAt(i);
                     var valB = hexValue.charAt(i + 1);
                     var a = MemoryManager.hexToDec(valA + valB);
-                    _Memory.setMemoryBlock(((i / 2) + pos), a);
-                    this.updateControl((i / 2) + pos);
+                    code[i/2] = a;
+//                    _Memory.setMemoryBlock(((i / 2) + pos), a);
+//                    this.updateControl((i / 2) + pos);
 //                var x = Math.floor(i / 16);
 //                var y = (i - (x * 16)) / 2;
 //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
 //                cell.innerHTML = valA + valB;
                 }
-                this.loadPos++;
-                this.loadPos = this.loadPos % 3;
-                return pos;
+
+//                this.loadPos++;
+//                this.loadPos = this.loadPos % 3;
+//                return pos;
+//            }
+            return code;
+        }
+
+        public loadMemory(code : number[]) : number {
+            console.log(code);
+            var found : boolean = false;
+            for(var i = 0; i < 3 && !found; i++){
+                if(this.avail[i]){
+                    this.avail[i] = false;
+                    found = true;
+                    console.log("finds mem allocation" + i);
+                    for(var j = 0; j < code.length; j++){
+                        this.setMemoryBlock((i * 256) + j, code[j]);
+//                        console.log(this.memoryTable[(i * 256) + j]);
+//                        this.updateControl((i * 256) + j);
+                    }
+                    return i;
+                }
             }
             return -1;
         }

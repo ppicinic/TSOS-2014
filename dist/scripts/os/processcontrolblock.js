@@ -5,7 +5,8 @@ var TSOS;
 (function (TSOS) {
     // stores information about a user program
     var ProcessControlBlock = (function () {
-        function ProcessControlBlock(start, length, end, PC, IR, Acc, XReg, YReg, ZFlag, PID, state) {
+        function ProcessControlBlock(length, start, end, PC, IR, Acc, XReg, YReg, ZFlag, PID, state, drive) {
+            if (typeof start === "undefined") { start = 0; }
             if (typeof end === "undefined") { end = 0; }
             if (typeof PC === "undefined") { PC = 0; }
             if (typeof IR === "undefined") { IR = 0; }
@@ -15,8 +16,9 @@ var TSOS;
             if (typeof ZFlag === "undefined") { ZFlag = 0; }
             if (typeof PID === "undefined") { PID = 0; }
             if (typeof state === "undefined") { state = "Waiting"; }
-            this.start = start;
+            if (typeof drive === "undefined") { drive = false; }
             this.length = length;
+            this.start = start;
             this.end = end;
             this.PC = PC;
             this.IR = IR;
@@ -26,9 +28,16 @@ var TSOS;
             this.ZFlag = ZFlag;
             this.PID = PID;
             this.state = state;
+            this.drive = drive;
             this.end = this.start + this.length;
             this.PC = this.start;
         }
+        ProcessControlBlock.prototype.setStart = function (i) {
+            this.start = i * 256;
+            this.PC = (this.PC % 256) + this.start;
+            this.end = this.start + this.length;
+        };
+
         ProcessControlBlock.prototype.init = function () {
         };
 
@@ -38,6 +47,14 @@ var TSOS;
 
         ProcessControlBlock.prototype.getPID = function () {
             return this.PID;
+        };
+
+        ProcessControlBlock.prototype.onDrive = function () {
+            return this.drive;
+        };
+
+        ProcessControlBlock.prototype.setDrive = function (val) {
+            this.drive = val;
         };
 
         ProcessControlBlock.prototype.setState = function (newState) {

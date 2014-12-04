@@ -9,9 +9,11 @@ The OS Shell - The "command line interface" (CLI) for the console.
 var TSOS;
 (function (TSOS) {
     var Shell = (function () {
-        function Shell(pcb) {
+        function Shell(pcb, hddback) {
             if (typeof pcb === "undefined") { pcb = []; }
+            if (typeof hddback === "undefined") { hddback = false; }
             this.pcb = pcb;
+            this.hddback = hddback;
             // Properties
             this.promptStr = ">";
             this.commandList = [];
@@ -57,14 +59,26 @@ var TSOS;
                     result = false;
                 }
                 if (result) {
-                    var pos = _MemoryManager.loadMemory(memoryString);
+                    var code = _MemoryManager.parseCode(memoryString);
+                    console.log("length" + code.length);
+                    var pos = _MemoryManager.loadMemory(code);
+                    var pcb = new TSOS.ProcessControlBlock(memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
                     if (pos != -1) {
-                        var pcb = new TSOS.ProcessControlBlock(pos, memoryString.length / 2);
-                        var i = _ProcessManager.add(pcb);
-                        _StdOut.putText("Program loaded with PID " + i + ".");
+                        pcb.setStart(pos);
                     } else {
-                        _StdOut.putText("Program cannot be loaded while programs are running.");
+                        pcb.setDrive(true);
                     }
+                    var params = new Array();
+                    params.push(CREATE_WRITE_FILE); //request
+                    params.push(OS_REQUEST); //user
+                    params.push(0); // as_string
+                    params.push(0); // mem loc
+                    params.push(0); // cpu callback
+                    params.push("swap" + i); //filename
+                    params.push(code); //file
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+                    _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
@@ -287,6 +301,10 @@ var TSOS;
             //
             // Display the initial prompt.
             this.putPrompt();
+        };
+
+        Shell.prototype.callback = function () {
+            this.hddback = true;
         };
 
         Shell.prototype.putPrompt = function () {

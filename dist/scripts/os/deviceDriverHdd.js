@@ -42,6 +42,7 @@ var TSOS;
                     valid = false;
                 }
             }
+            console.log(cpu_callback);
             console.log(valid);
             if (valid) {
                 if (request == FORMAT_DRIVE) {
@@ -55,7 +56,12 @@ var TSOS;
                     _HDD.writeFile(filename, file, user);
                     if (cpu_callback) {
                         // do cpu scheduler call back
+                        _CPUScheduler.callback();
                     }
+                } else if (request == CREATE_WRITE_FILE) {
+                    _HDD.createFile(filename, user);
+                    console.log(file);
+                    _HDD.writeFile(filename, file, user);
                 } else if (request == READ_FILE) {
                     if (as_string) {
                         _HDD.readFileAsString(filename);

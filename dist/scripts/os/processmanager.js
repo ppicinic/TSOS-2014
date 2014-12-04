@@ -47,6 +47,10 @@ var TSOS;
             return result;
         };
 
+        ProcessManager.prototype.showCurrent = function () {
+            return this.processes;
+        };
+
         ProcessManager.prototype.getPcb = function (id) {
             for (var i = 0; i < this.processes.length; i++) {
                 if (this.processes[i].getPID() == id) {

@@ -328,6 +328,87 @@ var TSOS;
             return file;
         };
 
+        Hdd.prototype.readProgram = function (filename) {
+            var file = new Array();
+            var exists = false;
+            var x1 = 0;
+            var y1 = 0;
+            var z1 = 0;
+
+            //            var mx = 0;
+            var my = 0;
+            var mz = 0;
+
+            for (var y = 0; y < 8 && !exists; y++) {
+                for (var z = 0; z < 8 && !exists; z++) {
+                    var same = true;
+
+                    for (var j = 0; (j < filename.length || j < 60) && same; j++) {
+                        if (j >= filename.length) {
+                            if (this.data[0][y][z][j + 4] == 0) {
+                                x1 = this.data[0][y][z][0];
+                                y1 = this.data[0][y][z][1];
+                                z1 = this.data[0][y][z][2];
+                                my = y;
+                                mz = z;
+                                exists = true;
+                                same = false;
+                            } else {
+                                same = false;
+                            }
+                        } else if (this.data[0][y][z][j + 4] == 0) {
+                            same = false;
+                        } else if (filename.charCodeAt(j) != this.data[0][y][z][j + 4]) {
+                            same = false;
+                        }
+                    }
+                }
+                //                }
+            }
+            console.log("exists " + exists);
+            if (exists) {
+                if (this.data[0][my][mz][3] == 0) {
+                    this.data[0][my][mz][3] = 1;
+                    this.setData(0, my, mz, 3);
+                    var done = false;
+                    var h = 1;
+                    var x = 0;
+                    while (x < 256) {
+                        //                        console.log("x: " + x1);
+                        //                        console.log("y: " + y1);
+                        //                        console.log("z: " + z1);
+                        //                        console.log("h: " + h);
+                        if (h >= 61) {
+                            if (this.data[x1][y1][z1][h] != 0) {
+                                var x2 = this.data[x1][y1][z1][61];
+                                var y2 = this.data[x1][y1][z1][62];
+                                var z2 = this.data[x1][y1][z1][63];
+                                x1 = x2;
+                                y1 = y2;
+                                z1 = z2;
+                                h = 1;
+                            }
+                        }
+                        file.push(this.data[x1][y1][z1][h]);
+                        x++;
+                        h++;
+                    }
+
+                    this.data[0][my][mz][3] = 0;
+                    this.setData(0, my, mz, 3);
+                } else {
+                    //                    _StdOut.putText(filename + " is currently in use.");
+                    return null;
+                }
+            } else {
+                console.log("not found");
+
+                //                _StdOut.putText(filename + " does not exist.");
+                return null;
+            }
+            return file;
+        };
+
         Hdd.prototype.readFileAsString = function (filename) {
             console.log("reading");
             var file = this.readFile(filename);

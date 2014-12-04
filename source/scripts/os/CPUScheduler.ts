@@ -9,7 +9,9 @@ module TSOS {
                     public displayQueue : ProcessControlBlock[] = [],
                     public mode: number = 0,
                     public quantum: number = 6,
-                    public tick : number = 0){
+                    public tick : number = 0,
+                    public hddBack : boolean = false,
+                    public hddBackData : number[] = null){
 
         }
 
@@ -94,7 +96,57 @@ module TSOS {
             return this.readyQueue.length == 0;
         }
         public next(): ProcessControlBlock{
-            return this.readyQueue.shift();
+            var pcb = this.readyQueue.shift();
+            console.log(pcb);
+            if(pcb.onDrive()){
+                if(!_MemoryManager.memAvailable()){
+                    var done = false;
+                    var unrunningProccesses : ProcessControlBlock[] = _ProcessManager.showCurrent();
+                    for(var i = 0; i < unrunningProccesses.length && !done; i++){
+                        if(unrunningProccesses[i].getPID() != pcb.getPID()){
+                            if(!unrunningProccesses[i].onDrive()){
+                                var pcb2 = unrunningProccesses[i];
+                                var x = pcb2.getStart() / 256;
+                                var data : number[] = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap"+pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+                    for(var i = 0; i < this.displayQueue.length && !done; i++){
+                        if(this.displayQueue[i].getPID() != pcb.getPID()){
+                            if(!this.displayQueue[i].onDrive()){
+                                var pcb2 = this.displayQueue[i];
+                                var x = pcb2.getStart() / 256;
+                                var data : number[] = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap"+pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+
+                }
+                var program : number[] = _HDD.readProgram("swap"+pcb.getPID());
+                console.log("swapped");
+                console.log(program);
+                var position = _MemoryManager.loadMemory(program);
+                pcb.setStart(position);
+                pcb.setDrive(false);
+            }
+            return pcb;
+        }
+
+        public callback(data : number[] = null) : void {
+            this.hddBack = true;
+            this.hddBackData = data;
         }
 
         public add(pcb : ProcessControlBlock){

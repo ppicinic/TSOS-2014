@@ -30,6 +30,7 @@ var WRITE_FILE = 2;
 var READ_FILE = 3;
 var DELETE_FILE = 4;
 var LIST_FILES = 5;
+var CREATE_WRITE_FILE = 6;
 
 var USER_REQUEST = 0;
 var OS_REQUEST = 1;

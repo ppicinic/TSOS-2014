@@ -46,6 +46,10 @@ module TSOS {
             return result;
         }
 
+        public showCurrent() : ProcessControlBlock[] {
+            return this.processes;
+        }
+
         public getPcb(id: number):ProcessControlBlock{
             for(var i = 0; i < this.processes.length; i++){
                 if(this.processes[i].getPID() == id){

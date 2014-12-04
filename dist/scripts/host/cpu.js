@@ -106,6 +106,16 @@ var TSOS;
                 if (this.pcb.isFinished(this.PC)) {
                     _CPUScheduler.finish(this.pcb.getPID());
                     this.pcb.setState("Finished");
+                    _MemoryManager.free(this.pcb.getStart() / 256);
+                    var params = new Array();
+                    params.push(DELETE_FILE); //request
+                    params.push(OS_REQUEST); //user
+                    params.push(0); // as_string
+                    params.push(0); // mem loc
+                    params.push(0); // cpu callback
+                    params.push("swap" + this.pcb.getPID()); //filename
+                    params.push(null); //file
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
                     this.pcb = null;
                     this.isExecuting = false;
                 }

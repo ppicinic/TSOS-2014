@@ -17,7 +17,7 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
-        constructor(public pcb: number[] = []) {
+        constructor(public pcb: number[] = [], public hddback : boolean = false) {
 
         }
 
@@ -145,6 +145,10 @@ module TSOS {
             //
             // Display the initial prompt.
             this.putPrompt();
+        }
+
+        public callback() : void {
+            this.hddback = true;
         }
 
         public putPrompt() {
@@ -426,14 +430,27 @@ module TSOS {
                 result = false;
             }
             if(result) {
-                var pos = _MemoryManager.loadMemory(memoryString);
-                if (pos != -1) {
-                    var pcb:ProcessControlBlock = new ProcessControlBlock(pos, memoryString.length / 2);
-                    var i = _ProcessManager.add(pcb);
-                    _StdOut.putText("Program loaded with PID " + i + ".");
-                }else {
-                    _StdOut.putText("Program cannot be loaded while programs are running.");
+                var code : number[] = _MemoryManager.parseCode(memoryString);
+                console.log("length"+code.length);
+                var pos : number = _MemoryManager.loadMemory(code);
+                var pcb:ProcessControlBlock = new ProcessControlBlock(memoryString.length / 2);
+                var i = _ProcessManager.add(pcb);
+                if(pos != -1){
+                    pcb.setStart(pos);
+                }else{
+                    pcb.setDrive(true);
                 }
+                var params = new Array();
+                params.push(CREATE_WRITE_FILE); //request
+                params.push(OS_REQUEST); //user
+                params.push(0); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push("swap" + i); //filename
+                params.push(code);//file
+                _KernelInterruptQueue.enqueue(new Interrupt(FSDD_IRQ, params));
+                _StdOut.putText("Program loaded with PID " + i + ".");
+
             }else{
                 _StdOut.putText("Program is invalid.")
             }
