@@ -231,7 +231,10 @@ var TSOS;
                                 if (!first) {
                                     _StdOut.advanceLine();
                                 }
-                                _StdOut.putText(filename);
+                                var regexp = new RegExp('^[A-Za-z0-9]+[\.][A-Za-z0-9]+$');
+                                if (regexp.test(filename)) {
+                                    _StdOut.putText(filename);
+                                }
                                 filename = "";
                                 first = false;
                             } else {
