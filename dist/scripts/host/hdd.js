@@ -357,8 +357,8 @@ var TSOS;
                     }
                 }
             }
-            var y2 = 0;
-            var z2 = 0;
+            var y2 = -1;
+            var z2 = -1;
             var exists = false;
             for (var y = 7; y >= 0; y--) {
                 for (var z = 7; z >= 0; z--) {
@@ -389,7 +389,7 @@ var TSOS;
                 if (user) {
                     _StdOut.putText("The file already exists.");
                 }
-            } else if (!found) {
+            } else if (!found || y2 == -1) {
                 if (user) {
                     _StdOut.putText("Not enough memory.");
                 }
