@@ -41,6 +41,11 @@ var TSOS;
             _krnKeyboardDriver.driverEntry(); // Call the driverEntry() initialization routine.
             this.krnTrace(_krnKeyboardDriver.status);
 
+            this.krnTrace("Loading the hard drive disk device driver.");
+            _krnHddDriver = new TSOS.DeviceDriverHdd();
+            _krnHddDriver.driverEntry;
+            this.krnTrace(_krnHddDriver.status);
+
             //
             // ... more?
             //
@@ -120,6 +125,9 @@ var TSOS;
                     _krnKeyboardDriver.isr(params); // Kernel mode device driver
                     _StdIn.handleInput();
                     break;
+                case FSDD_IRQ:
+                    _krnHddDriver.isr(params);
+                    break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");
             }
@@ -172,6 +180,7 @@ var TSOS;
             element.style.display = "none";
             var element2 = document.getElementById("divConsole");
             element2.style.backgroundImage = "url('bsod.png')";
+            clearInterval(_hardwareClockID);
             this.krnShutdown();
         };
         return Kernel;

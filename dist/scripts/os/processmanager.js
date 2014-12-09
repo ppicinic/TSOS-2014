@@ -36,6 +36,12 @@ var TSOS;
             return false;
         };
 
+        ProcessManager.prototype.deleteAll = function () {
+            var result = this.processes.length > 0;
+            this.processes = new Array();
+            return result;
+        };
+
         /**
         * Gets the specifed pcb
         * @param i the id of the pcb
@@ -45,6 +51,10 @@ var TSOS;
             var result = this.processes;
             this.processes = new Array();
             return result;
+        };
+
+        ProcessManager.prototype.showCurrent = function () {
+            return this.processes;
         };
 
         ProcessManager.prototype.getPcb = function (id) {

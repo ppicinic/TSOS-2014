@@ -4,11 +4,17 @@
 var TSOS;
 (function (TSOS) {
     var MemoryManager = (function () {
-        function MemoryManager(memoryTable, loadPos) {
+        function MemoryManager(memoryTable, loadPos, avail) {
             if (typeof memoryTable === "undefined") { memoryTable = null; }
             if (typeof loadPos === "undefined") { loadPos = 0; }
+            if (typeof avail === "undefined") { avail = new Array(3); }
             this.memoryTable = memoryTable;
             this.loadPos = loadPos;
+            this.avail = avail;
+            this.avail[0] = true;
+            this.avail[1] = true;
+            this.avail[2] = true;
+            console.log(this.avail);
         }
         /**
         * Initializes memory manager and the host display
@@ -128,27 +134,73 @@ var TSOS;
             return x;
         };
 
+        MemoryManager.prototype.memAvailable = function () {
+            for (var i = 0; i < this.avail.length; i++) {
+                if (this.avail[i]) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        MemoryManager.prototype.getProgramData = function (i) {
+            var code = new Array(256);
+            for (var x = 0; x < 256; x++) {
+                code[x] = _Memory.getMemoryBlock((i * 256) + x);
+            }
+            return code;
+        };
+
+        MemoryManager.prototype.free = function (i) {
+            this.avail[i] = true;
+        };
+
         /**
         * Store a hex value in memory
         * @param hexValue the hex value
         */
-        MemoryManager.prototype.loadMemory = function (hexValue) {
-            if (_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
-                var pos = this.loadPos * 256;
-                for (var i = 0; i < hexValue.length; i += 2) {
-                    var valA = hexValue.charAt(i);
-                    var valB = hexValue.charAt(i + 1);
-                    var a = MemoryManager.hexToDec(valA + valB);
-                    _Memory.setMemoryBlock(((i / 2) + pos), a);
-                    this.updateControl((i / 2) + pos);
-                    //                var x = Math.floor(i / 16);
-                    //                var y = (i - (x * 16)) / 2;
-                    //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
-                    //                cell.innerHTML = valA + valB;
+        MemoryManager.prototype.parseCode = function (hexValue) {
+            //            if(_CPUScheduler.isEmpty() && !_CPU.isExecuting) {
+            var code = new Array(256);
+
+            for (var i = 0; i < 256; i++) {
+                code[i] = 0;
+            }
+            for (var i = 0; i < hexValue.length; i += 2) {
+                var valA = hexValue.charAt(i);
+                var valB = hexValue.charAt(i + 1);
+                var a = MemoryManager.hexToDec(valA + valB);
+                code[i / 2] = a;
+                //                    _Memory.setMemoryBlock(((i / 2) + pos), a);
+                //                    this.updateControl((i / 2) + pos);
+                //                var x = Math.floor(i / 16);
+                //                var y = (i - (x * 16)) / 2;
+                //                var cell = <HTMLTableCellElement>(<HTMLTableRowElement>this.memoryTable.rows.item(x)).cells.item(y + 1);
+                //                cell.innerHTML = valA + valB;
+            }
+
+            //                this.loadPos++;
+            //                this.loadPos = this.loadPos % 3;
+            //                return pos;
+            //            }
+            return code;
+        };
+
+        MemoryManager.prototype.loadMemory = function (code) {
+            console.log(code);
+            var found = false;
+            for (var i = 0; i < 3 && !found; i++) {
+                if (this.avail[i]) {
+                    this.avail[i] = false;
+                    found = true;
+                    console.log("finds mem allocation" + i);
+                    for (var j = 0; j < code.length; j++) {
+                        this.setMemoryBlock((i * 256) + j, code[j]);
+                        //                        console.log(this.memoryTable[(i * 256) + j]);
+                        //                        this.updateControl((i * 256) + j);
+                    }
+                    return i;
                 }
-                this.loadPos++;
-                this.loadPos = this.loadPos % 3;
-                return pos;
             }
             return -1;
         };

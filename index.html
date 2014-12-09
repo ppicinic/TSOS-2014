@@ -16,6 +16,7 @@
    <script type="text/javascript" src="dist/scripts/host/devices.js"></script>
    <script type="text/javascript" src="dist/scripts/host/cpu.js"></script>
    <script type="text/javascript" src="dist/scripts/host/memory.js"></script>
+   <script type="text/javascript" src="dist/scripts/host/hdd.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
    <script type="text/javascript" src="dist/scripts/os/interrupt.js"></script>
@@ -23,6 +24,7 @@
    <script type="text/javascript" src="dist/scripts/os/console.js"></script>
    <script type="text/javascript" src="dist/scripts/os/deviceDriver.js"></script>
    <script type="text/javascript" src="dist/scripts/os/deviceDriverKeyboard.js"></script>
+   <script type="text/javascript" src="dist/scripts/os/deviceDriverHdd.js"></script>
    <script type="text/javascript" src="dist/scripts/os/queue.js"></script>
    <script type="text/javascript" src="dist/scripts/os/shell.js"></script>
    <script type="text/javascript" src="dist/scripts/os/shellCommand.js"></script>
@@ -110,6 +112,12 @@
             </table>
     </div>
 
+    <div id="divHdd" style="height: 300px; width: 300px; overflow: scroll;">
+        <table id="hdd">
+            <tbody></tbody>
+        </table>
+    </div>
+
    <div id="divLog" style="margin-left:520px;">
        <div><p id="taStatusBarStatus">Off</p><p id="taStatusBarDate">Unavailable</p></div>
       <label>
@@ -126,7 +134,7 @@
     <div id="divPCBDisplay" style="margin-left:520px;">
         <label>Running Processes</label>
         <br />
-        <textarea name="taPCBDisplay" id="taPCBDisplay" rows="8" cols="48"></textarea>
+        <textarea name="taPCBDisplay" id="taPCBDisplay" rows="8" cols="70"></textarea>
     </div>
    <div id="divUserProgramInput" style="margin-left:520px;">
       <label>

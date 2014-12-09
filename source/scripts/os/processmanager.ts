@@ -35,6 +35,13 @@ module TSOS {
             }
             return false;
         }
+
+        public deleteAll() : boolean {
+            var result : boolean = this.processes.length > 0;
+            this.processes = new Array();
+            return result;
+        }
+
         /**
          * Gets the specifed pcb
          * @param i the id of the pcb
@@ -44,6 +51,10 @@ module TSOS {
             var result = this.processes;
             this.processes = new Array();
             return result;
+        }
+
+        public showCurrent() : ProcessControlBlock[] {
+            return this.processes;
         }
 
         public getPcb(id: number):ProcessControlBlock{

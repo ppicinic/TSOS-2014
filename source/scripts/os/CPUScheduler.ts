@@ -9,7 +9,9 @@ module TSOS {
                     public displayQueue : ProcessControlBlock[] = [],
                     public mode: number = 0,
                     public quantum: number = 6,
-                    public tick : number = 0){
+                    public tick : number = 0,
+                    public hddBack : boolean = false,
+                    public hddBackData : number[] = null){
 
         }
 
@@ -17,6 +19,20 @@ module TSOS {
             this.updateDisplay();
         }
 
+        public setMode(i : number){
+            this.mode = i;
+        }
+
+        public getMode() : string{
+            if(this.mode == 0){
+                return "Round Robin";
+            }else if(this.mode == 1){
+                return "First Come First Serve";
+            }else if(this.mode == 2){
+                return "Priority Queue";
+            }
+            return "";
+        }
         // 0 do nothing
         // 1 grab a pcb
         // 2 context switch pcb
@@ -31,6 +47,8 @@ module TSOS {
                         this.tick++;
                         return 3;
                     }
+                }else{
+                    return 3;
                 }
             }else{
                 if(!this.isEmpty()){
@@ -94,7 +112,77 @@ module TSOS {
             return this.readyQueue.length == 0;
         }
         public next(): ProcessControlBlock{
-            return this.readyQueue.shift();
+            var pcb = null;
+            if(this.mode != 2) {
+                pcb = this.readyQueue.shift();
+            }else{
+                var min = 10000000000000000000;
+                var x = 0;
+                for(var i = 0; i < this.readyQueue.length; i++){
+                    if(this.readyQueue[i].getPriority() < min){
+                        min = this.readyQueue[i].getPriority();
+                        x = i;
+                    }
+                }
+//                pcb = this.readyQueue[x];
+//                console.log(this.readyQueue);
+                var temp = this.readyQueue[x];
+                for(var i = x; i > 0; i--){
+                    this.readyQueue[i] = this.readyQueue[i-1];
+                }
+                this.readyQueue[0] = temp;
+                pcb = this.readyQueue.shift();
+            }
+            console.log(pcb);
+            if(pcb.onDrive()){
+                if(!_MemoryManager.memAvailable()){
+                    var done = false;
+                    var unrunningProccesses : ProcessControlBlock[] = _ProcessManager.showCurrent();
+                    for(var i = 0; i < unrunningProccesses.length && !done; i++){
+                        if(unrunningProccesses[i].getPID() != pcb.getPID()){
+                            if(!unrunningProccesses[i].onDrive()){
+                                var pcb2 = unrunningProccesses[i];
+                                var x = pcb2.getStart() / 256;
+                                var data : number[] = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap"+pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+                    for(var i = 0; i < this.displayQueue.length && !done; i++){
+                        if(this.displayQueue[i].getPID() != pcb.getPID()){
+                            if(!this.displayQueue[i].onDrive()){
+                                var pcb2 = this.displayQueue[i];
+                                var x = pcb2.getStart() / 256;
+                                var data : number[] = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap"+pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+
+                }
+                var program : number[] = _HDD.readProgram("swap"+pcb.getPID());
+                console.log("swapped");
+                console.log(program);
+                var position = _MemoryManager.loadMemory(program);
+                pcb.setStart(position);
+                pcb.setDrive(false);
+            }
+            return pcb;
+        }
+
+        public callback(data : number[] = null) : void {
+            this.hddBack = true;
+            this.hddBackData = data;
         }
 
         public add(pcb : ProcessControlBlock){
@@ -130,7 +218,7 @@ module TSOS {
         public updateDisplay(){
 
             var output : string = "";
-            output += "PID    PC   IR   Acc    X    Y    Z   State";
+            output += "PID    PC   IR   Acc    X    Y    Z   State     Location     Priority";
             if(this.displayQueue.length == 0){
                 output += "\nThere are no running processes."
             }
@@ -152,6 +240,14 @@ module TSOS {
                 output += this.pad2(MemoryManager.decToHex(pcb.getZFlag()));
                 output += "   ";
                 output += pcb.getState();
+                output += "   ";
+                if(pcb.onDrive()){
+                    output += "Hard Drive";
+                }else{
+                    output += "    Memory"
+                }
+                output += "   ";
+                output += pcb.getPriority();
 
             }
             document.getElementById("taPCBDisplay").innerHTML = output;

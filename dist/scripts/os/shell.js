@@ -9,9 +9,11 @@ The OS Shell - The "command line interface" (CLI) for the console.
 var TSOS;
 (function (TSOS) {
     var Shell = (function () {
-        function Shell(pcb) {
+        function Shell(pcb, hddback) {
             if (typeof pcb === "undefined") { pcb = []; }
+            if (typeof hddback === "undefined") { hddback = false; }
             this.pcb = pcb;
+            this.hddback = hddback;
             // Properties
             this.promptStr = ">";
             this.commandList = [];
@@ -57,14 +59,31 @@ var TSOS;
                     result = false;
                 }
                 if (result) {
-                    var pos = _MemoryManager.loadMemory(memoryString);
-                    if (pos != -1) {
-                        var pcb = new TSOS.ProcessControlBlock(pos, memoryString.length / 2);
-                        var i = _ProcessManager.add(pcb);
-                        _StdOut.putText("Program loaded with PID " + i + ".");
-                    } else {
-                        _StdOut.putText("Program cannot be loaded while programs are running.");
+                    var code = _MemoryManager.parseCode(memoryString);
+                    console.log("length" + code.length);
+                    var pos = _MemoryManager.loadMemory(code);
+                    var pcb = new TSOS.ProcessControlBlock(memoryString.length / 2);
+                    var i = _ProcessManager.add(pcb);
+                    console.log("args");
+                    console.log(args);
+                    if (args[0] != null && args[0].trim() != "") {
+                        pcb.setPriority(parseInt(args[0]));
                     }
+                    if (pos != -1) {
+                        pcb.setStart(pos);
+                    } else {
+                        pcb.setDrive(true);
+                    }
+                    var params = new Array();
+                    params.push(CREATE_WRITE_FILE); //request
+                    params.push(OS_REQUEST); //user
+                    params.push(0); // as_string
+                    params.push(0); // mem loc
+                    params.push(0); // cpu callback
+                    params.push("swap" + i); //filename
+                    params.push(code); //file
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+                    _StdOut.putText("Program loaded with PID " + i + ".");
                 } else {
                     _StdOut.putText("Program is invalid.");
                 }
@@ -88,6 +107,112 @@ var TSOS;
             };
             this.shellPs = function (args) {
                 _CPUScheduler.display();
+            };
+            this.shellCreate = function (args) {
+                var params = new Array();
+                params.push(CREATE_FILE); //request
+                params.push(USER_REQUEST); //user
+                params.push(0); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(args[0]); //filename
+                params.push(null); //file
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+            };
+            this.shellWrite = function (args) {
+                var params = new Array();
+                params.push(WRITE_FILE); //request
+                params.push(USER_REQUEST); //user
+                params.push(0); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(args[0]); //filename
+                var text = "";
+                var first = false;
+                var second = false;
+                var firstArg = true;
+                for (var i = 1; i < args.length; i++) {
+                    if (!firstArg) {
+                        text += " ";
+                    }
+                    text += args[i];
+                    firstArg = false;
+                }
+                console.log("Text: " + text);
+                var file = new Array();
+                for (var i = 0; i < text.length && !second; i++) {
+                    console.log(text.charCodeAt(i));
+                    if (text.charCodeAt(i) == 34) {
+                        if (first) {
+                            second = true;
+                        } else {
+                            first = true;
+                        }
+                    } else if (first) {
+                        console.log(text.charCodeAt(i));
+                        file.push(text.charCodeAt(i));
+                    }
+                }
+                params.push(file); //file
+                if (second) {
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+                }
+            };
+            this.shellRead = function (args) {
+                var params = new Array();
+                params.push(READ_FILE); //request
+                params.push(USER_REQUEST); //user
+                params.push(AS_STRING); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(args[0]); //filename
+                params.push(null); //file
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+            };
+            this.shellDelete = function (args) {
+                var params = new Array();
+                params.push(DELETE_FILE); //request
+                params.push(USER_REQUEST); //user
+                params.push(AS_STRING); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(args[0]); //filename
+                params.push(null); //file
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+            };
+            this.shellFormat = function (args) {
+                var params = new Array();
+                params.push(FORMAT_DRIVE); //request
+                params.push(USER_REQUEST); //user
+                params.push(AS_STRING); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(null); //filename
+                params.push(null); //file
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
+            };
+            this.shellGetSchedule = function (args) {
+                _StdOut.putText(_CPUScheduler.getMode());
+            };
+            this.shellSetSchedule = function (args) {
+                if (args[0] == "rr") {
+                    _CPUScheduler.setMode(0);
+                } else if (args[0] == "fcfs") {
+                    _CPUScheduler.setMode(1);
+                } else if (args[0] == "priority") {
+                    _CPUScheduler.setMode(2);
+                }
+            };
+            this.shellLs = function (args) {
+                var params = new Array();
+                params.push(LIST_FILES); //request
+                params.push(USER_REQUEST); //user
+                params.push(AS_STRING); // as_string
+                params.push(0); // mem loc
+                params.push(0); // cpu callback
+                params.push(null); //filename
+                params.push(null); //file
+                _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
             };
             // changes the status of the OS status bar
             this.shellStatus = function (args) {
@@ -170,11 +295,39 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellPs, "ps", "Displays all processes");
             this.commandList[this.commandList.length] = sc;
 
+            sc = new TSOS.ShellCommand(this.shellCreate, "create", "<filename> - creates a new file.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellWrite, "write", "<filename>, <file> - writes to the specified file.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellRead, "read", "<filename> - reads the specified file.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellFormat, "format", "formats the hard drive.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellDelete, "delete", "<filename> - deletes the specified file.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellLs, "ls", "lists all files.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellGetSchedule, "getschedule", "Gets the CPU Schedule.");
+            this.commandList[this.commandList.length] = sc;
+
+            sc = new TSOS.ShellCommand(this.shellSetSchedule, "setschedule", "<schedule> - Sets the CPU Schedule.");
+            this.commandList[this.commandList.length] = sc;
+
             // processes - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             //
             // Display the initial prompt.
             this.putPrompt();
+        };
+
+        Shell.prototype.callback = function () {
+            this.hddback = true;
         };
 
         Shell.prototype.putPrompt = function () {

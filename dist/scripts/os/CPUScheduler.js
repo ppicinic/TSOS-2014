@@ -1,20 +1,39 @@
 var TSOS;
 (function (TSOS) {
     var CPUScheduler = (function () {
-        function CPUScheduler(readyQueue, displayQueue, mode, quantum, tick) {
+        function CPUScheduler(readyQueue, displayQueue, mode, quantum, tick, hddBack, hddBackData) {
             if (typeof readyQueue === "undefined") { readyQueue = []; }
             if (typeof displayQueue === "undefined") { displayQueue = []; }
             if (typeof mode === "undefined") { mode = 0; }
             if (typeof quantum === "undefined") { quantum = 6; }
             if (typeof tick === "undefined") { tick = 0; }
+            if (typeof hddBack === "undefined") { hddBack = false; }
+            if (typeof hddBackData === "undefined") { hddBackData = null; }
             this.readyQueue = readyQueue;
             this.displayQueue = displayQueue;
             this.mode = mode;
             this.quantum = quantum;
             this.tick = tick;
+            this.hddBack = hddBack;
+            this.hddBackData = hddBackData;
         }
         CPUScheduler.prototype.init = function () {
             this.updateDisplay();
+        };
+
+        CPUScheduler.prototype.setMode = function (i) {
+            this.mode = i;
+        };
+
+        CPUScheduler.prototype.getMode = function () {
+            if (this.mode == 0) {
+                return "Round Robin";
+            } else if (this.mode == 1) {
+                return "First Come First Serve";
+            } else if (this.mode == 2) {
+                return "Priority Queue";
+            }
+            return "";
         };
 
         // 0 do nothing
@@ -31,6 +50,8 @@ var TSOS;
                         this.tick++;
                         return 3;
                     }
+                } else {
+                    return 3;
                 }
             } else {
                 if (!this.isEmpty()) {
@@ -92,7 +113,78 @@ var TSOS;
             return this.readyQueue.length == 0;
         };
         CPUScheduler.prototype.next = function () {
-            return this.readyQueue.shift();
+            var pcb = null;
+            if (this.mode != 2) {
+                pcb = this.readyQueue.shift();
+            } else {
+                var min = 10000000000000000000;
+                var x = 0;
+                for (var i = 0; i < this.readyQueue.length; i++) {
+                    if (this.readyQueue[i].getPriority() < min) {
+                        min = this.readyQueue[i].getPriority();
+                        x = i;
+                    }
+                }
+
+                //                pcb = this.readyQueue[x];
+                //                console.log(this.readyQueue);
+                var temp = this.readyQueue[x];
+                for (var i = x; i > 0; i--) {
+                    this.readyQueue[i] = this.readyQueue[i - 1];
+                }
+                this.readyQueue[0] = temp;
+                pcb = this.readyQueue.shift();
+            }
+            console.log(pcb);
+            if (pcb.onDrive()) {
+                if (!_MemoryManager.memAvailable()) {
+                    var done = false;
+                    var unrunningProccesses = _ProcessManager.showCurrent();
+                    for (var i = 0; i < unrunningProccesses.length && !done; i++) {
+                        if (unrunningProccesses[i].getPID() != pcb.getPID()) {
+                            if (!unrunningProccesses[i].onDrive()) {
+                                var pcb2 = unrunningProccesses[i];
+                                var x = pcb2.getStart() / 256;
+                                var data = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap" + pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+                    for (var i = 0; i < this.displayQueue.length && !done; i++) {
+                        if (this.displayQueue[i].getPID() != pcb.getPID()) {
+                            if (!this.displayQueue[i].onDrive()) {
+                                var pcb2 = this.displayQueue[i];
+                                var x = pcb2.getStart() / 256;
+                                var data = _MemoryManager.getProgramData(x);
+                                console.log("wswapped");
+                                console.log(data);
+                                _HDD.writeFile("swap" + pcb2.getPID(), data, false);
+                                pcb2.setDrive(true);
+                                _MemoryManager.free(x);
+                                done = true;
+                            }
+                        }
+                    }
+                }
+                var program = _HDD.readProgram("swap" + pcb.getPID());
+                console.log("swapped");
+                console.log(program);
+                var position = _MemoryManager.loadMemory(program);
+                pcb.setStart(position);
+                pcb.setDrive(false);
+            }
+            return pcb;
+        };
+
+        CPUScheduler.prototype.callback = function (data) {
+            if (typeof data === "undefined") { data = null; }
+            this.hddBack = true;
+            this.hddBackData = data;
         };
 
         CPUScheduler.prototype.add = function (pcb) {
@@ -127,7 +219,7 @@ var TSOS;
 
         CPUScheduler.prototype.updateDisplay = function () {
             var output = "";
-            output += "PID    PC   IR   Acc    X    Y    Z   State";
+            output += "PID    PC   IR   Acc    X    Y    Z   State     Location     Priority";
             if (this.displayQueue.length == 0) {
                 output += "\nThere are no running processes.";
             }
@@ -149,6 +241,14 @@ var TSOS;
                 output += this.pad2(TSOS.MemoryManager.decToHex(pcb.getZFlag()));
                 output += "   ";
                 output += pcb.getState();
+                output += "   ";
+                if (pcb.onDrive()) {
+                    output += "Hard Drive";
+                } else {
+                    output += "    Memory";
+                }
+                output += "   ";
+                output += pcb.getPriority();
             }
             document.getElementById("taPCBDisplay").innerHTML = output;
         };

@@ -7,8 +7,9 @@ module TSOS {
     // stores information about a user program
     export class ProcessControlBlock {
 
-        constructor(public start : number,
+        constructor(
             public length : number,
+            public start : number = 0,
             public end : number = 0,
             public PC : number = 0,
             public IR : number = 0,
@@ -17,13 +18,29 @@ module TSOS {
             public YReg : number = 0,
             public ZFlag : number = 0,
             public PID : number = 0,
-            public state : string = "Waiting"){
+            public state : string = "Waiting",
+            public drive : boolean = false,
+            public priority : number = 10){
             this.end = this.start + this.length;
             this.PC = this.start;
         }
 
+        public setStart(i : number) {
+            this.start = i * 256;
+            this.PC = (this.PC % 256) + this.start;
+            this.end = this.start + this.length;
+        }
+
         public init() : void{
 
+        }
+
+        public getPriority() : number{
+            return this.priority;
+        }
+
+        public setPriority(i : number){
+            this.priority = i;
         }
 
         public setPID(id) : void{
@@ -32,6 +49,14 @@ module TSOS {
 
         public getPID() : number{
             return this.PID;
+        }
+
+        public onDrive() : boolean {
+            return this.drive;
+        }
+
+        public setDrive(val : boolean) : void {
+            this.drive = val;
         }
 
         public setState(newState : string) : void {

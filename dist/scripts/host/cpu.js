@@ -106,6 +106,16 @@ var TSOS;
                 if (this.pcb.isFinished(this.PC)) {
                     _CPUScheduler.finish(this.pcb.getPID());
                     this.pcb.setState("Finished");
+                    _MemoryManager.free(this.pcb.getStart() / 256);
+                    var params = new Array();
+                    params.push(DELETE_FILE); //request
+                    params.push(OS_REQUEST); //user
+                    params.push(0); // as_string
+                    params.push(0); // mem loc
+                    params.push(0); // cpu callback
+                    params.push("swap" + this.pcb.getPID()); //filename
+                    params.push(null); //file
+                    _KernelInterruptQueue.enqueue(new TSOS.Interrupt(FSDD_IRQ, params));
                     this.pcb = null;
                     this.isExecuting = false;
                 }
@@ -282,7 +292,9 @@ var TSOS;
                     var value = _Memory.getMemoryBlock(val + this.base);
                     value++;
                     if (value > 255) {
-                        value = 255;
+                        value = 0;
+                        var carry = _Memory.getMemoryBlock(val + 1 + this.base);
+                        _MemoryManager.setMemoryBlock(val + 1 + this.base, carry + 1);
                     }
                     _MemoryManager.setMemoryBlock(val + this.base, value);
                     break;

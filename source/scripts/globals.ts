@@ -20,6 +20,23 @@ var CPU_CLOCK_INTERVAL: number = 100;   // This is in ms, or milliseconds, so 10
 var TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                             // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ: number = 1;
+var FSDD_IRQ: number = 2;
+
+
+// FSDD PARAM CONSTANTS
+var FORMAT_DRIVE = 0;
+var CREATE_FILE = 1;
+var WRITE_FILE = 2;
+var READ_FILE = 3;
+var DELETE_FILE = 4;
+var LIST_FILES = 5;
+var CREATE_WRITE_FILE = 6;
+
+var USER_REQUEST = 0;
+var OS_REQUEST = 1;
+
+var AS_STRING = 0;
+var AS_DATA = 0;
 
 
 //
@@ -59,6 +76,8 @@ var _OsShell: TSOS.Shell;
 
 var _CPUScheduler : TSOS.CPUScheduler;
 
+var _HDD : TSOS.Hdd;// compile
+
 var _SingleStep: boolean = false;
 
 var _ProcessManager : TSOS.ProcessManager;
@@ -68,6 +87,7 @@ var _SarcasticMode: boolean = false;
 
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver = null;
+var _krnHddDriver = null;
 
 var _hardwareClockID: number = null;
 
