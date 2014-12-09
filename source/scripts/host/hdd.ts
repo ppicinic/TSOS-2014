@@ -6,16 +6,23 @@ module TSOS {
 
     export class Hdd {
 
+        /** Constructs a hard drive */
         public constructor(public data: number[][][][] = new Array(8),
                             public diskTable = null){
 
         }
-        //compile
+
+        /**
+         * Initializes the hard drive
+         */
         public init() : void {
             this.startUp();
             this.initDisplay();
         }
 
+        /**
+         * Starts the hard drive up, loads all the data from the web storage
+         */
         public startUp() : void {
             var test = localStorage.getItem("drive");
             //console.log(localSto)
@@ -44,6 +51,9 @@ module TSOS {
             localStorage.setItem("drive", "true");
         }
 
+        /**
+         * Initializes the host display of the hard drive
+         */
         public initDisplay() : void {
 //            this.loadPos = 0;
             var x1 = 0;
@@ -110,12 +120,27 @@ module TSOS {
             }
         }
 
+        /**
+         * Formats the drive
+         */
         public format() : void {
-            localStorage.setItem("drive", "false");
-            this.startUp();
-            this.refreshWholeDisplay();
+            if(_CPU.isExecuting || !_CPUScheduler.isEmpty()){
+                _StdOut.putText("Cannot format drive while processes are executed.");
+            }else {
+
+                localStorage.setItem("drive", "false");
+                this.startUp();
+                this.refreshWholeDisplay();
+                _StdOut.putText("Drive formatted sucessfully.");
+                if(_ProcessManager.deleteAll()){
+                    _StdOut.putText("Warning: all loaded processes have been deleted.");
+                }
+            }
         }
 
+        /**
+         * Refreshes the entire hard drive display on the host
+         */
         public refreshWholeDisplay() : void {
             for(var x = 0; x < 4; x++){
                 for(var y = 0; y < 8; y++){
@@ -126,6 +151,11 @@ module TSOS {
             }
         }
 
+        /**
+         * Deletes a file
+         * @param filename the name of the file
+         * @param user flag if the request is from a user or OS
+         */
         public deleteFile(filename : string, user : boolean) : void {
             var exists : boolean = false;
             var x1 = 0;
@@ -220,6 +250,9 @@ module TSOS {
             }
         }
 
+        /**
+         * Lists all files on the drive, only lists user files, OS files such as swap files will not show up
+         */
         public listFiles() : void {
             var filename : string = "";
             var first : boolean = true;
@@ -249,6 +282,11 @@ module TSOS {
             }
         }
 
+        /**
+         * Reads a file using 0 as an EOF
+         * @param filename File name of the file
+         * @returns {*} the binary data of the file
+         */
         public readFile(filename : string ) : number[] {
             var file = new Array();
             var exists : boolean = false;
@@ -332,6 +370,11 @@ module TSOS {
             return file;
         }
 
+        /**
+         * Reads a file as program data using a constant 256 length for EOF
+         * @param filename the name of the program fille
+         * @returns {*} the binary data of the file
+         */
         public readProgram(filename : string ) : number[] {
             var file = new Array();
             var exists : boolean = false;
@@ -413,6 +456,10 @@ module TSOS {
             return file;
         }
 
+        /**
+         * Reads a file and prints as a string
+         * @param filename name of the file
+         */
         public readFileAsString(filename : string){
             console.log("reading");
             var file : number[] = this.readFile(filename);
@@ -425,6 +472,11 @@ module TSOS {
             }
         }
 
+        /**
+         * Creates a file
+         * @param filename name of the file
+         * @param user flag if the request is from a user or OS
+         */
         public createFile(filename : string, user : boolean) : void {
            var x1 = 0;
            var y1 = 0;
@@ -504,7 +556,12 @@ module TSOS {
         }
 
 
-
+        /**
+         * Writes data to a file
+         * @param filename the name of the file
+         * @param file the binary data of the file
+         * @param user user flag if the request is from a user or OS
+         */
         public writeFile(filename : string, file : number[], user : boolean){
 //            console.log("writing");
             var exists : boolean = false;
@@ -655,6 +712,12 @@ module TSOS {
             }
         }
 
+        /**
+         * Writes to a file with string parameter
+         * NOT USED?!
+         * @param filename the name of the file
+         * @param text the text of the file
+         */
         public writeToFileAsString(filename : string, text : string){
             console.log("occurs");
             var file : number[] = new Array();
@@ -669,6 +732,12 @@ module TSOS {
             this.updateDisplay(x, y, z);
         }
 
+        /**
+         * Updates the affect display
+         * @param x the track
+         * @param y the sector
+         * @param z the block
+         */
         public updateDisplay(x, y, z): void{
             var i = (x * 64) + (y * 8) + z + 1;
             var row : HTMLTableRowElement = <HTMLTableRowElement> this.diskTable.rows.item(i);
@@ -690,6 +759,9 @@ module TSOS {
             }
         }
 
+        /**
+         * Not sure?!
+         */
         public test() : void {
             console.log(parseInt(localStorage.getItem("drive" + 0 + "" + 0 + "" + 0 + "" + 0 + "")));
         }

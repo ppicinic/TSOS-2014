@@ -7,16 +7,26 @@ module TSOS {
     // Extends DeviceDriver
     export class DeviceDriverHdd extends DeviceDriver {
 
+        /**
+         * Creates the fsDD
+         */
         constructor() {
             super(this.krnHddDriverEntry, this.krnHddDispatchIO);
         }
 
+        /**
+         * Not sure what this really does but is needed?!
+         */
         public krnHddDriverEntry() {
             // Initialization routine for this, the kernel-mode Keyboard Device Driver.
             this.status = "loaded";
             // More?
         }
 
+        /**
+         * Handles a keyboard ISR
+         * @param params the parameters of the isr
+         */
         public krnHddDispatchIO(params) {
             var request : number = <number> params[0];
             var user : boolean = (<number> params[1]) == USER_REQUEST;

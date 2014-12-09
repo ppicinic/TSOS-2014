@@ -12,15 +12,25 @@ var TSOS;
     // Extends DeviceDriver
     var DeviceDriverHdd = (function (_super) {
         __extends(DeviceDriverHdd, _super);
+        /**
+        * Creates the fsDD
+        */
         function DeviceDriverHdd() {
             _super.call(this, this.krnHddDriverEntry, this.krnHddDispatchIO);
         }
+        /**
+        * Not sure what this really does but is needed?!
+        */
         DeviceDriverHdd.prototype.krnHddDriverEntry = function () {
             // Initialization routine for this, the kernel-mode Keyboard Device Driver.
             this.status = "loaded";
             // More?
         };
 
+        /**
+        * Handles a keyboard ISR
+        * @param params the parameters of the isr
+        */
         DeviceDriverHdd.prototype.krnHddDispatchIO = function (params) {
             var request = params[0];
             var user = params[1] == USER_REQUEST;

@@ -36,6 +36,12 @@ var TSOS;
             return false;
         };
 
+        ProcessManager.prototype.deleteAll = function () {
+            var result = this.processes.length > 0;
+            this.processes = new Array();
+            return result;
+        };
+
         /**
         * Gets the specifed pcb
         * @param i the id of the pcb

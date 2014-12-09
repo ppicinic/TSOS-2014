@@ -288,7 +288,9 @@ module TSOS {
                     var value = _Memory.getMemoryBlock(val + this.base);
                     value++;
                     if(value > 255){
-                        value = 255;
+                        value = 0;
+                        var carry = _Memory.getMemoryBlock(val + 1 + this.base);
+                        _MemoryManager.setMemoryBlock(val + 1 + this.base, carry + 1);
                     }
                     _MemoryManager.setMemoryBlock(val + this.base, value);
                     break;

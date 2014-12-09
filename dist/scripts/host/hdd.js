@@ -4,18 +4,24 @@
 var TSOS;
 (function (TSOS) {
     var Hdd = (function () {
+        /** Constructs a hard drive */
         function Hdd(data, diskTable) {
             if (typeof data === "undefined") { data = new Array(8); }
             if (typeof diskTable === "undefined") { diskTable = null; }
             this.data = data;
             this.diskTable = diskTable;
         }
-        //compile
+        /**
+        * Initializes the hard drive
+        */
         Hdd.prototype.init = function () {
             this.startUp();
             this.initDisplay();
         };
 
+        /**
+        * Starts the hard drive up, loads all the data from the web storage
+        */
         Hdd.prototype.startUp = function () {
             var test = localStorage.getItem("drive");
 
@@ -47,6 +53,9 @@ var TSOS;
             localStorage.setItem("drive", "true");
         };
 
+        /**
+        * Initializes the host display of the hard drive
+        */
         Hdd.prototype.initDisplay = function () {
             //            this.loadPos = 0;
             var x1 = 0;
@@ -109,12 +118,26 @@ var TSOS;
             }
         };
 
+        /**
+        * Formats the drive
+        */
         Hdd.prototype.format = function () {
-            localStorage.setItem("drive", "false");
-            this.startUp();
-            this.refreshWholeDisplay();
+            if (_CPU.isExecuting || !_CPUScheduler.isEmpty()) {
+                _StdOut.putText("Cannot format drive while processes are executed.");
+            } else {
+                localStorage.setItem("drive", "false");
+                this.startUp();
+                this.refreshWholeDisplay();
+                _StdOut.putText("Drive formatted sucessfully.");
+                if (_ProcessManager.deleteAll()) {
+                    _StdOut.putText("Warning: all loaded processes have been deleted.");
+                }
+            }
         };
 
+        /**
+        * Refreshes the entire hard drive display on the host
+        */
         Hdd.prototype.refreshWholeDisplay = function () {
             for (var x = 0; x < 4; x++) {
                 for (var y = 0; y < 8; y++) {
@@ -125,6 +148,11 @@ var TSOS;
             }
         };
 
+        /**
+        * Deletes a file
+        * @param filename the name of the file
+        * @param user flag if the request is from a user or OS
+        */
         Hdd.prototype.deleteFile = function (filename, user) {
             var exists = false;
             var x1 = 0;
@@ -217,6 +245,9 @@ var TSOS;
             }
         };
 
+        /**
+        * Lists all files on the drive, only lists user files, OS files such as swap files will not show up
+        */
         Hdd.prototype.listFiles = function () {
             var filename = "";
             var first = true;
@@ -246,6 +277,11 @@ var TSOS;
             }
         };
 
+        /**
+        * Reads a file using 0 as an EOF
+        * @param filename File name of the file
+        * @returns {*} the binary data of the file
+        */
         Hdd.prototype.readFile = function (filename) {
             var file = new Array();
             var exists = false;
@@ -328,6 +364,11 @@ var TSOS;
             return file;
         };
 
+        /**
+        * Reads a file as program data using a constant 256 length for EOF
+        * @param filename the name of the program fille
+        * @returns {*} the binary data of the file
+        */
         Hdd.prototype.readProgram = function (filename) {
             var file = new Array();
             var exists = false;
@@ -409,6 +450,10 @@ var TSOS;
             return file;
         };
 
+        /**
+        * Reads a file and prints as a string
+        * @param filename name of the file
+        */
         Hdd.prototype.readFileAsString = function (filename) {
             console.log("reading");
             var file = this.readFile(filename);
@@ -421,6 +466,11 @@ var TSOS;
             }
         };
 
+        /**
+        * Creates a file
+        * @param filename name of the file
+        * @param user flag if the request is from a user or OS
+        */
         Hdd.prototype.createFile = function (filename, user) {
             var x1 = 0;
             var y1 = 0;
@@ -495,6 +545,12 @@ var TSOS;
             }
         };
 
+        /**
+        * Writes data to a file
+        * @param filename the name of the file
+        * @param file the binary data of the file
+        * @param user user flag if the request is from a user or OS
+        */
         Hdd.prototype.writeFile = function (filename, file, user) {
             //            console.log("writing");
             var exists = false;
@@ -646,6 +702,12 @@ var TSOS;
             }
         };
 
+        /**
+        * Writes to a file with string parameter
+        * NOT USED?!
+        * @param filename the name of the file
+        * @param text the text of the file
+        */
         Hdd.prototype.writeToFileAsString = function (filename, text) {
             console.log("occurs");
             var file = new Array();
@@ -661,6 +723,12 @@ var TSOS;
             this.updateDisplay(x, y, z);
         };
 
+        /**
+        * Updates the affect display
+        * @param x the track
+        * @param y the sector
+        * @param z the block
+        */
         Hdd.prototype.updateDisplay = function (x, y, z) {
             var i = (x * 64) + (y * 8) + z + 1;
             var row = this.diskTable.rows.item(i);
@@ -682,6 +750,9 @@ var TSOS;
             }
         };
 
+        /**
+        * Not sure?!
+        */
         Hdd.prototype.test = function () {
             console.log(parseInt(localStorage.getItem("drive" + 0 + "" + 0 + "" + 0 + "" + 0 + "")));
         };

@@ -180,6 +180,7 @@ var TSOS;
             element.style.display = "none";
             var element2 = document.getElementById("divConsole");
             element2.style.backgroundImage = "url('bsod.png')";
+            clearInterval(_hardwareClockID);
             this.krnShutdown();
         };
         return Kernel;
